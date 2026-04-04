@@ -1539,13 +1539,7 @@ function renderTrendChart(){
 
   el.innerHTML=`
   <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;border-radius:8px">
-    <defs>
-      <linearGradient id="kg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#378ADD" stop-opacity="0.15"/><stop offset="100%" stop-color="#378ADD" stop-opacity="0"/></linearGradient>
-      <linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#993556" stop-opacity="0.15"/><stop offset="100%" stop-color="#993556" stop-opacity="0"/></linearGradient>
-    </defs>
     ${grid}
-    <path d="${areaPath(hanPts)}" fill="url(#hg)"/>
-    <path d="${areaPath(kaiPts)}" fill="url(#kg)"/>
     <path d="${smoothPath(hanPts)}" fill="none" stroke="var(--han)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
     <path d="${smoothPath(kaiPts)}" fill="none" stroke="var(--kai)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
     ${labels}${dots}${xlbl}
