@@ -67,7 +67,13 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .card-sub{font-size:11px;color:var(--text2);margin-top:4px;}
 
 /* ── Settlement box ── */
-.settle-box{background:var(--amber-light);border:1px solid #FAC775;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;}
+.settle-box{background:var(--amber-light);border:1px solid #FAC775;border-radius:12px;padding:1.25rem;margin-bottom:.75rem;display:flex;align-items:center;gap:1rem;}
+.spend-breakdown{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1.25rem;margin-bottom:1.5rem;font-size:13px;}
+.sb-row{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem .2rem;}
+.sb-label{color:var(--text2);font-size:12px;}
+.sb-val{font-size:13px;font-weight:600;}
+.kai-txt{color:var(--kai);}
+.han-txt{color:var(--han);}
 .settle-icon{font-size:24px;flex-shrink:0;}
 .settle-text{font-size:14px;font-weight:500;}
 .settle-amount{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--amber);}
@@ -148,12 +154,13 @@ input[type=text],input[type=number],input[type=date],select{
 input:focus,select:focus{border-color:var(--accent);background:white;}
 input.formula{font-family:var(--mono);}
 
-.formula-hint{font-size:11px;font-family:var(--mono);color:var(--green);margin-top:3px;min-height:16px;}
+.formula-hint{font-size:11px;font-family:var(--mono);color:var(--green);position:absolute;top:100%;left:0;margin-top:2px;white-space:nowrap;}
+.fgroup{position:relative;}
 .formula-hint.err{color:var(--accent);}
 
 /* Who toggle */
 .who-toggle{display:flex;gap:6px;}
-.who-btn{flex:1;padding:8px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.12s;color:var(--text2);}
+.who-btn{padding:8px 14px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.12s;color:var(--text2);}
 .who-btn.sel-kai{border-color:var(--kai);background:var(--kai-light);color:var(--kai);}
 .who-btn.sel-han{border-color:var(--han);background:var(--han-light);color:var(--han);}
 .who-btn.sel-shared{border-color:#888;background:#F1EFE8;color:#5F5E5A;}
@@ -238,6 +245,9 @@ tr:hover .btn-sm{opacity:1;}
 /* ── Settled badge ── */
 .settled-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;}
 .settled-btn.settled{background:var(--green-light);color:var(--green);border-color:var(--green);}
+.paid-btn{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;margin-right:8px;}
+.paid-btn.paid{background:#e8f5e9;color:#2e7d32;border-color:#2e7d32;}
+.settle-paid{background:#e8f5e9!important;border-color:#2e7d32!important;}
 
 /* ── Mobile ── */
 @media(max-width:768px){
@@ -346,6 +356,19 @@ tr:hover .btn-sm{opacity:1;}
       <div class="page-body">
         <div class="grid4" id="year-summary"></div>
         <div id="year-settle"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem;align-items:stretch">
+          <div class="section" style="display:flex;flex-direction:column">
+            <div class="section-header">
+              <div class="section-title">累計資產走勢</div>
+              <div style="display:flex;gap:14px;font-size:12px;color:var(--text2)">
+                <span style="display:flex;align-items:center;gap:5px"><span style="width:18px;height:3px;background:#7BB8F5;border-radius:2px;display:inline-block"></span>凱</span>
+                <span style="display:flex;align-items:center;gap:5px"><span style="width:18px;height:3px;background:#D4849E;border-radius:2px;display:inline-block"></span>涵</span>
+              </div>
+            </div>
+            <div class="section-body" style="padding:0.75rem 1rem" id="year-trend-chart"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="year-donuts"></div>
+        </div>
         <div class="year-grid" id="year-months"></div>
         <div class="grid2">
           <div class="section">
@@ -1057,72 +1080,54 @@ function buildMonthPanel(mm){
   </div>
 
   <!-- Add income -->
-  <div class="form-section" style="margin-bottom:1.5rem">
+  <div class="form-section" style="margin-bottom:1.2rem">
     <div class="fsec-title">＋ 新增收入</div>
-    <div class="frow fr4">
-      <div class="fgroup"><label class="fl">日期</label><input type="date" id="ifd-${mm}" value="2026-${mm}-01"></div>
-      <div class="fgroup"><label class="fl">來源（薪水/獎金等）</label><input type="text" id="ifn-${mm}" placeholder="例：薪水"></div>
-      <div class="fgroup">
-        <label class="fl">金額（支援公式）</label>
-        <input type="text" id="ifa-${mm}" class="formula" placeholder="例：3500 或 7000/2">
-        <div class="formula-hint" id="ifh-${mm}"></div>
-      </div>
-      <div class="fgroup"><label class="fl">誰的收入</label>
+    <div class="frow" style="display:grid;grid-template-columns:140px 1fr 1fr auto;gap:10px;align-items:end">
+      <div class="fgroup"><label class="fl">日期</label><input type="date" id="ifd-${mm}" value="${currentYear}-${mm}-01"></div>
+      <div class="fgroup"><label class="fl">來源</label><input type="text" id="ifn-${mm}" placeholder="例：薪水"></div>
+      <div class="fgroup"><label class="fl">金額</label><input type="text" id="ifa-${mm}" class="formula" placeholder="例：3500 或 7000/2"><div class="formula-hint" id="ifh-${mm}"></div></div>
+      <div class="fgroup"><label class="fl">誰</label>
         <div class="who-toggle">
           <button class="who-btn sel-kai" id="iwho-kai-${mm}" onclick="setIncWho('${mm}','kai')">凱</button>
           <button class="who-btn" id="iwho-han-${mm}" onclick="setIncWho('${mm}','han')">涵</button>
         </div>
       </div>
     </div>
-    <button class="btn btn-primary" onclick="addIncome('${mm}')">新增收入</button>
+    <button class="btn btn-primary" style="margin-top:8px" onclick="addIncome('${mm}')">新增收入</button>
   </div>
 
   <!-- Add expense form -->
   <div class="form-section">
     <div class="fsec-title">＋ 新增支出</div>
-    <div class="frow fr5">
-      <div class="fgroup"><label class="fl">日期</label><input type="date" id="fd-${mm}" value="2026-${mm}-01"></div>
+    <div class="frow" style="display:grid;grid-template-columns:140px 1fr 70px 1fr 130px;gap:10px;align-items:end">
+      <div class="fgroup"><label class="fl">日期</label><input type="date" id="fd-${mm}" value="${currentYear}-${mm}-01"></div>
       <div class="fgroup"><label class="fl">項目名稱</label><input type="text" id="fn-${mm}" placeholder="例：雞蛋"></div>
       <div class="fgroup"><label class="fl">數量</label><input type="number" id="fq-${mm}" value="1" min="1" step="1"></div>
-      <div class="fgroup">
-        <label class="fl">金額（支援公式）</label>
-        <input type="text" id="fp-${mm}" class="formula" placeholder="例：16.15 或 32.30/2">
-        <div class="formula-hint" id="fph-${mm}"></div>
-      </div>
+      <div class="fgroup"><label class="fl">金額</label><input type="text" id="fp-${mm}" class="formula" placeholder="例：16.15 或 32.30/2"><div class="formula-hint" id="fph-${mm}"></div></div>
       <div class="fgroup"><label class="fl">分類</label><select id="fc-${mm}" onchange="handleCatChange(this)"></select></div>
     </div>
 
-    <div class="form-divider">誰的費用 ＆ 誰付款</div>
-    <div class="frow fr2" style="margin-bottom:12px">
-      <div class="fgroup">
-        <label class="fl">這筆費用屬於</label>
+    <div class="frow" style="display:flex;gap:16px;margin-top:8px;align-items:end">
+      <div class="fgroup"><label class="fl">費用屬於</label>
         <div class="who-toggle">
           <button class="who-btn" id="fwho-kai-${mm}" onclick="setExpWho('${mm}','kai')">凱的</button>
           <button class="who-btn" id="fwho-han-${mm}" onclick="setExpWho('${mm}','han')">涵的</button>
           <button class="who-btn sel-shared" id="fwho-shared-${mm}" onclick="setExpWho('${mm}','shared')">共同（各一半）</button>
         </div>
       </div>
-      <div class="fgroup">
-        <label class="fl">誰付的錢</label>
+      <div class="fgroup"><label class="fl">誰付款</label>
         <div class="who-toggle">
           <button class="who-btn sel-kai" id="fpaid-kai-${mm}" onclick="setExpPaid('${mm}','kai')">凱付</button>
           <button class="who-btn" id="fpaid-han-${mm}" onclick="setExpPaid('${mm}','han')">涵付</button>
         </div>
       </div>
+      <div class="fgroup" style="flex:0 0 80px"><label class="fl">GST</label><input type="text" id="fg-${mm}" class="formula" placeholder="0"></div>
+      <div class="fgroup" style="flex:0 0 80px"><label class="fl">PST</label><input type="text" id="fpst-${mm}" class="formula" placeholder="0"></div>
+      <div class="fgroup" style="flex:1"><label class="fl">備註（可選）</label><input type="text" id="fo-${mm}" placeholder="例：T&T 購入"></div>
     </div>
 
-    <div class="form-divider">稅金（選填，直接從收據輸入）</div>
-    <div class="tax-row">
-      <div class="fgroup"><label class="fl">GST 金額 (CAD)</label><input type="text" id="fg-${mm}" class="formula" placeholder="0 或直接輸入"></div>
-      <div class="fgroup"><label class="fl">PST 金額 (CAD)</label><input type="text" id="fpst-${mm}" class="formula" placeholder="0 或直接輸入"></div>
-    </div>
-
-    <div class="frow fr2">
-      <div class="fgroup"><label class="fl">備註（可選）</label><input type="text" id="fo-${mm}" placeholder="例：T&T 購入"></div>
-      <div id="calc-prev-${mm}" style="display:none" class="calc-preview fgroup"></div>
-    </div>
-
-    <div style="display:flex;gap:8px;margin-top:4px">
+    <div id="calc-prev-${mm}" style="display:none" class="calc-preview"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
       <button class="btn btn-primary" onclick="addExpense('${mm}')">新增支出</button>
       <button class="btn btn-secondary" onclick="clearExpForm('${mm}')">清除</button>
     </div>
@@ -1180,9 +1185,9 @@ function cumulativeTotals(mm){
     kaiInc+=incs.filter(i=>i.who==='kai').reduce((s,i)=>s+i.amount,0);
     hanInc+=incs.filter(i=>i.who==='han').reduce((s,i)=>s+i.amount,0);
     kaiSpend+=pt.kaiSpend; hanSpend+=pt.hanSpend;
-    // Match Excel formula: Feb+ subtracts kai personal expenses an extra time
+    // 個人消費（贍養費等）在實際支出裡已含，餘額公式需再扣一次
     if(m>='02'){
-      kaiExtraDeduct+=exps.filter(e=>e.who==='kai'&&e.cat!=='房租').reduce((s,e)=>s+total(e),0);
+      kaiExtraDeduct+=exps.filter(e=>e.who==='kai'&&e.cat==='個人消費').reduce((s,e)=>s+total(e),0);
     }
   });
   return {kaiInc,hanInc,kaiSpend,hanSpend,kaiExtraDeduct};
@@ -1193,9 +1198,14 @@ function renderMonth(mm){
   const exps=monthExp(mm), incs=monthInc(mm);
   const {kaiSpend:kaiSpendM,hanSpend:hanSpendM}=personalTotals(exps);
   const settle=calcSettle(exps);
+  const kaiOnlyM=exps.filter(e=>e.who==='kai').reduce((s,e)=>s+total(e),0);
+  const sharedM=exps.filter(e=>e.who==='shared').reduce((s,e)=>s+total(e),0);
+  const sharedHalfM=Math.floor(sharedM/2*100)/100;
+  const kaiPersonalM=Math.round((kaiOnlyM+sharedHalfM)*100)/100;
+  const hanPersonalM=settle<0?Math.round(-settle*100)/100:0;
   const kaiIncM=incs.filter(i=>i.who==='kai').reduce((s,i)=>s+i.amount,0);
   const hanIncM=incs.filter(i=>i.who==='han').reduce((s,i)=>s+i.amount,0);
-  const kaiExtraM=mm>='02'?exps.filter(e=>e.who==='kai'&&e.cat!=='房租').reduce((s,e)=>s+total(e),0):0;
+  const kaiExtraM=mm>='02'?exps.filter(e=>e.who==='kai'&&e.cat==='個人消費').reduce((s,e)=>s+total(e),0):0;
   const kaiBalanceM=kaiIncM-kaiSpendM-kaiExtraM, hanBalanceM=hanIncM-hanSpendM;
 
   const {kaiInc,hanInc,kaiSpend,hanSpend,kaiExtraDeduct}=cumulativeTotals(mm);
@@ -1206,20 +1216,31 @@ function renderMonth(mm){
 
   document.getElementById('sum-'+mm).innerHTML=`
     <div class="card kai-card"><div class="card-label">凱 本月收入</div><div class="card-value kai">${fmtCad(kaiIncM)}</div><div class="card-sub">本月支出 ${fmtCad(kaiSpendM)}</div></div>
-    <div class="card kai-card"><div class="card-label">凱 累計資產</div><div class="card-value ${kaiBalance>=0?'green':'red'}">${fmtCad(kaiBalance)}</div><div class="card-sub">本月結餘 ${fmtCad(kaiBalanceM)}</div></div>
+    <div class="card kai-card"><div class="card-label">凱 本月結餘</div><div class="card-value ${kaiBalanceM>=0?'green':'red'}">${fmtCad(kaiBalanceM)}</div><div class="card-sub">累計資產 ${fmtCad(kaiBalance)}</div></div>
     <div class="card han-card"><div class="card-label">涵 本月收入</div><div class="card-value han">${fmtCad(hanIncM)}</div><div class="card-sub">本月支出 ${fmtCad(hanSpendM)}</div></div>
-    <div class="card han-card"><div class="card-label">涵 累計資產</div><div class="card-value ${hanBalance>=0?'green':'red'}">${fmtCad(hanBalance)}</div><div class="card-sub">本月結餘 ${fmtCad(hanBalanceM)}</div></div>
+    <div class="card han-card"><div class="card-label">涵 本月結餘</div><div class="card-value ${hanBalanceM>=0?'green':'red'}">${fmtCad(hanBalanceM)}</div><div class="card-sub">累計資產 ${fmtCad(hanBalance)}</div></div>
   `;
 
   const settleEl=document.getElementById('settle-'+mm);
-  const isSettled=localStorage.getItem('hh_settled_'+mm)==='1';
-  const settledBtn=`<button class="settled-btn${isSettled?' settled':''}" onclick="toggleSettled('${mm}')">${isSettled?'✅ 已結算':'○ 標記已結算'}</button>`;
+  const isPaid=localStorage.getItem('hh_spaid_'+currentYear+'_'+mm)==='1';
+  const paidBtn=`<button class="paid-btn${isPaid?' paid':''}" onclick="markSettlePaid('${mm}')">${isPaid?'💚 涵已還清':'○ 標記涵已還款'}</button>`;
+  const spendBreakdown=`
+  <div class="spend-breakdown">
+    <div class="sb-row">
+      <span class="sb-label kai-txt">凱 個人支出</span>
+      <span class="sb-val mono">${fmtCad(kaiPersonalM)}</span>
+      <span class="sb-label han-txt" style="margin-left:1.5rem">涵 個人支出</span>
+      <span class="sb-val mono">${fmtCad(hanPersonalM)}</span>
+      <span class="sb-label" style="margin-left:1.5rem;color:var(--text2)">共同支出</span>
+      <span class="sb-val mono" style="color:var(--text2)">${fmtCad(sharedM)} <small>(各 ${fmtCad(sharedM/2)})</small></span>
+    </div>
+  </div>`;
   if(Math.abs(settle)<0.01){
-    settleEl.innerHTML=`<div class="settle-box"><div class="settle-icon">✅</div><div><div class="settle-text">本月帳目已平！兩人不需要互轉錢。</div></div></div>`;
+    settleEl.innerHTML=`<div class="settle-box"><div class="settle-icon">✅</div><div><div class="settle-text">本月帳目已平！兩人不需要互轉錢。</div></div></div>${spendBreakdown}`;
   } else if(settle>0){
-    settleEl.innerHTML=`<div class="settle-box"><div class="settle-icon">💸</div><div style="flex:1"><div class="settle-text">本月結算：<b>凱</b> 需轉給 <b>涵</b></div><div class="settle-amount">${fmtCad(settle)}</div></div>${settledBtn}</div>`;
+    settleEl.innerHTML=`<div class="settle-box"><div class="settle-icon">💸</div><div style="flex:1"><div class="settle-text">本月結算：<b>凱</b> 需轉給 <b>涵</b></div><div class="settle-amount">${fmtCad(settle)}</div></div></div>${spendBreakdown}`;
   } else {
-    settleEl.innerHTML=`<div class="settle-box"><div class="settle-icon">💸</div><div style="flex:1"><div class="settle-text">本月結算：<b>涵</b> 需轉給 <b>凱</b></div><div class="settle-amount">${fmtCad(-settle)}</div></div>${settledBtn}</div>`;
+    settleEl.innerHTML=`<div class="settle-box${isPaid?' settle-paid':''}"><div class="settle-icon">${isPaid?'✅':'💸'}</div><div style="flex:1"><div class="settle-text">${isPaid?'已還清：<b>涵</b> → <b>凱</b>':'本月結算：<b>涵</b> 需轉給 <b>凱</b>'}</div><div class="settle-amount">${fmtCad(-settle)}</div></div>${paidBtn}</div>${spendBreakdown}`;
   }
 
   ['kai','han'].forEach(who=>{
@@ -1241,8 +1262,8 @@ function renderMonth(mm){
   const tbody=document.getElementById('tbl-'+mm);
   const empty=document.getElementById('empty-'+mm);
   const allTotal=exps.reduce((s,e)=>s+total(e),0);
-  const gstTotal=exps.reduce((s,e)=>s+(e.gst||0),0);
-  const pstTotal=exps.reduce((s,e)=>s+(e.pst||0),0);
+  const gstTotal=exps.filter(e=>e.cat==='GST').reduce((s,e)=>s+total(e),0);
+  const pstTotal=exps.filter(e=>e.cat==='PST').reduce((s,e)=>s+total(e),0);
   if(!exps.length){tbody.innerHTML='';empty.style.display='block';}
   else{
     empty.style.display='none';
@@ -1269,8 +1290,6 @@ function renderMonth(mm){
     }).join('')+`
       <tr class="tbl-sub"><td colspan="9" style="text-align:right;padding-right:14px">GST 合計</td><td class="mono">${fmtCad(gstTotal)}</td><td></td></tr>
       <tr class="tbl-sub"><td colspan="9" style="text-align:right;padding-right:14px">PST 合計</td><td class="mono">${fmtCad(pstTotal)}</td><td></td></tr>
-      <tr class="tbl-sub"><td colspan="9" style="text-align:right;padding-right:14px">凱的費用</td><td class="mono" style="color:var(--kai)">${fmtCad(kaiSpend)}</td><td></td></tr>
-      <tr class="tbl-sub"><td colspan="9" style="text-align:right;padding-right:14px">涵的費用</td><td class="mono" style="color:var(--han)">${fmtCad(hanSpend)}</td><td></td></tr>
       <tr class="tbl-grand"><td colspan="9" style="text-align:right;padding-right:14px">月支出合計</td><td class="mono">${fmtCad(allTotal)}</td><td></td></tr>`;
   }
 
@@ -1329,6 +1348,35 @@ function toggleSettled(mm){
   localStorage.setItem('hh_settled_'+mm, cur?'0':'1');
   renderMonth(mm);
   showToast(cur?'已取消結算標記':'✅ 已標記為結算完成');
+}
+
+function markSettlePaid(mm){
+  const paidKey='hh_spaid_'+currentYear+'_'+mm;
+  const paidIdKey='hh_spaid_id_'+currentYear+'_'+mm;
+  const isPaid=localStorage.getItem(paidKey)==='1';
+  if(isPaid){
+    // 取消還款：移除那筆收入
+    const id=parseInt(localStorage.getItem(paidIdKey));
+    incomes=incomes.filter(i=>i.id!==id);
+    localStorage.removeItem(paidKey);
+    localStorage.removeItem(paidIdKey);
+    saveInc();
+    showToast('已取消還款標記');
+  } else {
+    // 標記已還款：幫凱新增一筆收入
+    const settle=calcSettle(monthExp(mm));
+    if(settle>=0) return;
+    const amount=Math.round(-settle*100)/100;
+    const lastDay=new Date(currentYear,parseInt(mm),0).toISOString().slice(0,10);
+    const id=nextIncId++;
+    incomes.push({id,date:lastDay,source:'涵還款',who:'kai',amount});
+    localStorage.setItem(paidKey,'1');
+    localStorage.setItem(paidIdKey,String(id));
+    saveInc();
+    showToast('✅ 已記錄還款 '+fmtCad(amount));
+  }
+  renderMonth(mm);
+  renderYear();
 }
 
 /* ──────── Calendar View ──────── */
@@ -1415,6 +1463,146 @@ function toggleCalDay(mm, dd, cell){
   </div>`;
 }
 
+/* ──────── Trend Chart ──────── */
+function renderTrendChart(){
+  const el=document.getElementById('year-trend-chart');
+  if(!el)return;
+  const W=800,H=200,PL=14,PR=14,PT=32,PB=28;
+  const chartW=W-PL-PR, chartH=H-PT-PB;
+  const data=MONTHS.map(mm=>{
+    const {kaiInc,hanInc,kaiSpend,hanSpend,kaiExtraDeduct}=cumulativeTotals(mm);
+    const hasData=monthExp(mm).length>0||monthInc(mm).length>0;
+    return{mm,kai:kaiInc-kaiSpend-kaiExtraDeduct,han:hanInc-hanSpend,hasData};
+  });
+  const lastIdx=data.reduce((l,d,i)=>d.hasData?i:l,-1);
+  if(lastIdx<0){el.innerHTML='<div class="empty-state" style="padding:2rem">尚無資料</div>';return;}
+  const active=data.slice(0,lastIdx+1);
+  const allV=active.flatMap(d=>[d.kai,d.han]);
+  const minV=Math.min(...allV), maxV=Math.max(...allV);
+  const pad=(maxV-minV)*0.18||1000;
+  const yMin=minV-pad*0.3, yMax=maxV+pad;
+  const n=active.length;
+  const xStep=n>1?chartW/(n-1):0;
+  const tx=i=>PL+(n>1?i*xStep:chartW/2);
+  const ty=v=>PT+chartH-((v-yMin)/(yMax-yMin))*chartH;
+  const bottom=PT+chartH;
+
+  // smooth bezier path
+  function smoothPath(pts){
+    if(pts.length===1) return `M${pts[0][0]},${pts[0][1]}`;
+    let d=`M${pts[0][0]},${pts[0][1]}`;
+    for(let i=0;i<pts.length-1;i++){
+      const mx=(pts[i][0]+pts[i+1][0])/2;
+      d+=` C${mx},${pts[i][1]} ${mx},${pts[i+1][1]} ${pts[i+1][0]},${pts[i+1][1]}`;
+    }
+    return d;
+  }
+  function areaPath(pts,col){
+    const line=smoothPath(pts);
+    const area=line+` L${pts[pts.length-1][0]},${bottom} L${pts[0][0]},${bottom} Z`;
+    return area;
+  }
+
+  const kaiPts=active.map((_,i)=>[tx(i),ty(active[i].kai)]);
+  const hanPts=active.map((_,i)=>[tx(i),ty(active[i].han)]);
+
+  // grid lines (horizontal only, subtle)
+  let grid='';
+  for(let i=0;i<=3;i++){
+    const y=PT+chartH*(i/3);
+    grid+=`<line x1="${PL}" y1="${y.toFixed(1)}" x2="${W-PR}" y2="${y.toFixed(1)}" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>`;
+  }
+
+  // x labels
+  let xlbl='';
+  active.forEach((_,i)=>{
+    xlbl+=`<text x="${tx(i).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--text3)">${MN[parseInt(active[i].mm)-1].replace('月','')}</text>`;
+  });
+
+  // value labels above each dot
+  let labels='';
+  active.forEach((d,i)=>{
+    const kx=tx(i), ky=ty(d.kai);
+    const hx=tx(i), hy=ty(d.han);
+    const klbl=Math.abs(d.kai)>=1000?(d.kai/1000).toFixed(1)+'k':d.kai.toFixed(0);
+    const hlbl=Math.abs(d.han)>=1000?(d.han/1000).toFixed(1)+'k':d.han.toFixed(0);
+    labels+=`<text x="${kx.toFixed(1)}" y="${(ky-10).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="var(--kai)">${klbl}</text>`;
+    labels+=`<text x="${hx.toFixed(1)}" y="${(hy+18).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="var(--han)">${hlbl}</text>`;
+  });
+
+  // dots
+  let dots='';
+  active.forEach((d,i)=>{
+    dots+=`<circle cx="${tx(i).toFixed(1)}" cy="${ty(d.kai).toFixed(1)}" r="4" fill="var(--kai)" stroke="white" stroke-width="2"/>`;
+    dots+=`<circle cx="${tx(i).toFixed(1)}" cy="${ty(d.han).toFixed(1)}" r="4" fill="var(--han)" stroke="white" stroke-width="2"/>`;
+  });
+
+  el.innerHTML=`
+  <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;border-radius:8px">
+    <defs>
+      <linearGradient id="kg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#378ADD" stop-opacity="0.15"/><stop offset="100%" stop-color="#378ADD" stop-opacity="0"/></linearGradient>
+      <linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#993556" stop-opacity="0.15"/><stop offset="100%" stop-color="#993556" stop-opacity="0"/></linearGradient>
+    </defs>
+    ${grid}
+    <path d="${areaPath(hanPts)}" fill="url(#hg)"/>
+    <path d="${areaPath(kaiPts)}" fill="url(#kg)"/>
+    <path d="${smoothPath(hanPts)}" fill="none" stroke="var(--han)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="${smoothPath(kaiPts)}" fill="none" stroke="var(--kai)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${labels}${dots}${xlbl}
+  </svg>`;
+}
+
+/* ──────── Donut Charts ──────── */
+function renderDonutCharts(){
+  const el=document.getElementById('year-donuts');
+  if(!el)return;
+  const COLORS=['#4A9EE0','#63B995','#E8875A','#B67FD4','#E06B6B','#E8C25A','#6BC4E0','#9E7BD4','#88BBAA','#D4B870'];
+
+  function donutSVG(who,expMap){
+    const entries=Object.entries(expMap).filter(([,v])=>v>0.01).sort((a,b)=>b[1]-a[1]);
+    const sum=entries.reduce((s,[,v])=>s+v,0);
+    if(!entries.length) return'<div class="empty-state" style="padding:2rem;font-size:12px">尚無支出</div>';
+    const cx=100,cy=88,R=68,r=42;
+    let ang=-Math.PI/2, arcs='';
+    entries.forEach(([,val],i)=>{
+      const a=(val/sum)*2*Math.PI, end=ang+a, lg=a>Math.PI?1:0;
+      const p=(θ,rd)=>[cx+rd*Math.cos(θ),cy+rd*Math.sin(θ)];
+      const[x1,y1]=p(ang,R),[x2,y2]=p(end,R),[x3,y3]=p(end,r),[x4,y4]=p(ang,r);
+      arcs+=`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R} 0 ${lg} 1 ${x2.toFixed(1)},${y2.toFixed(1)} L${x3.toFixed(1)},${y3.toFixed(1)} A${r},${r} 0 ${lg} 0 ${x4.toFixed(1)},${y4.toFixed(1)} Z" fill="${COLORS[i%COLORS.length]}"/>`;
+      ang=end;
+    });
+    const totalStr=sum>=1000?(sum/1000).toFixed(1)+'k':sum.toFixed(0);
+    const legend=entries.slice(0,5).map(([cat,val],i)=>`
+      <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2);min-width:0">
+        <span style="width:7px;height:7px;border-radius:50%;background:${COLORS[i%COLORS.length]};flex-shrink:0"></span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cat}</span>
+        <span style="color:var(--text3);font-family:monospace;font-size:9px;flex-shrink:0">${val>=1000?(val/1000).toFixed(1)+'k':val.toFixed(0)}</span>
+      </div>`).join('');
+    const ac=who==='kai'?'#378ADD':'#993556', name=who==='kai'?'凱':'涵';
+    return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px">
+      <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:4px;display:flex;align-items:center;gap:5px">
+        <span style="width:16px;height:16px;border-radius:50%;background:${ac};display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700">${name}</span>年支出
+      </div>
+      <svg viewBox="0 0 200 176" style="width:100%;height:auto;display:block">
+        ${arcs}
+        <text x="100" y="83" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)">${totalStr}</text>
+        <text x="100" y="98" text-anchor="middle" font-size="8" fill="var(--text3)">年支出合計</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:3px">${legend}</div>
+    </div>`;
+  }
+
+  const kaiMap={}, hanMap={};
+  expenses.forEach(e=>{
+    const t=total(e);
+    if(e.who==='kai') kaiMap[e.cat]=(kaiMap[e.cat]||0)+t;
+    else if(e.who==='han') hanMap[e.cat]=(hanMap[e.cat]||0)+t;
+    else{ kaiMap[e.cat]=(kaiMap[e.cat]||0)+t/2; hanMap[e.cat]=(hanMap[e.cat]||0)+t/2; }
+  });
+
+  el.innerHTML=donutSVG('kai',kaiMap)+donutSVG('han',hanMap);
+}
+
 /* ──────── Render Year ──────── */
 function renderYear(){
   const yt=document.getElementById('year-title');
@@ -1424,19 +1612,42 @@ function renderYear(){
   const {kaiSpend,hanSpend}=personalTotals(allExps);
   const kaiInc=allIncs.filter(i=>i.who==='kai').reduce((s,i)=>s+i.amount,0);
   const hanInc=allIncs.filter(i=>i.who==='han').reduce((s,i)=>s+i.amount,0);
+  const kaiExtraDeduct=allExps.filter(e=>e.date.slice(5,7)>='02'&&e.who==='kai'&&e.cat==='個人消費').reduce((s,e)=>s+total(e),0);
   const settle=calcSettle(allExps);
 
   document.getElementById('year-summary').innerHTML=`
-    <div class="card kai-card"><div class="card-label">凱 全年餘額</div><div class="card-value ${(kaiInc-kaiSpend)>=0?'green':'red'}">${fmtCad(kaiInc-kaiSpend)}</div><div class="card-sub">收入 ${fmtCad(kaiInc)} · 支出 ${fmtCad(kaiSpend)}</div></div>
+    <div class="card kai-card"><div class="card-label">凱 全年餘額</div><div class="card-value ${(kaiInc-kaiSpend-kaiExtraDeduct)>=0?'green':'red'}">${fmtCad(kaiInc-kaiSpend-kaiExtraDeduct)}</div><div class="card-sub">收入 ${fmtCad(kaiInc)} · 支出 ${fmtCad(kaiSpend)}</div></div>
     <div class="card han-card"><div class="card-label">涵 全年餘額</div><div class="card-value ${(hanInc-hanSpend)>=0?'green':'red'}">${fmtCad(hanInc-hanSpend)}</div><div class="card-sub">收入 ${fmtCad(hanInc)} · 支出 ${fmtCad(hanSpend)}</div></div>
     <div class="card"><div class="card-label">家庭總收入</div><div class="card-value green">${fmtCad(kaiInc+hanInc)}</div><div class="card-sub">凱+涵合計</div></div>
     <div class="card"><div class="card-label">家庭總支出</div><div class="card-value red">${fmtCad(allExps.reduce((s,e)=>s+total(e),0))}</div><div class="card-sub">所有費用合計</div></div>
   `;
 
+  // 已還款月份加總
+  const totalPaid=MONTHS.reduce((s,m)=>{
+    if(localStorage.getItem('hh_spaid_'+currentYear+'_'+m)!=='1') return s;
+    const ms=calcSettle(monthExp(m));
+    return s+(ms<0?Math.round(-ms*100)/100:0);
+  },0);
+  // 未還月份直接加總（避免浮點誤差）
+  const outstanding=MONTHS.reduce((s,m)=>{
+    if(localStorage.getItem('hh_spaid_'+currentYear+'_'+m)==='1') return s;
+    const ms=calcSettle(monthExp(m));
+    return s+(ms<0?Math.round(-ms*100)/100:0);
+  },0);
+
   const settleEl=document.getElementById('year-settle');
-  if(Math.abs(settle)<0.01) settleEl.innerHTML=`<div class="settle-box" style="margin-bottom:1.5rem"><div class="settle-icon">✅</div><div class="settle-text">全年帳目已平！</div></div>`;
-  else if(settle>0) settleEl.innerHTML=`<div class="settle-box" style="margin-bottom:1.5rem"><div class="settle-icon">💸</div><div><div class="settle-text">全年累計：<b>凱</b> 尚欠 <b>涵</b></div><div class="settle-amount">${fmtCad(settle)}</div></div></div>`;
-  else settleEl.innerHTML=`<div class="settle-box" style="margin-bottom:1.5rem"><div class="settle-icon">💸</div><div><div class="settle-text">全年累計：<b>涵</b> 尚欠 <b>凱</b></div><div class="settle-amount">${fmtCad(-settle)}</div></div></div>`;
+  if(Math.abs(settle)<0.01){
+    settleEl.innerHTML=`<div class="settle-box" style="margin-bottom:1.5rem"><div class="settle-icon">✅</div><div class="settle-text">全年帳目已平！</div></div>`;
+  } else if(settle>0){
+    settleEl.innerHTML=`<div class="settle-box" style="margin-bottom:1.5rem"><div class="settle-icon">💸</div><div><div class="settle-text">全年累計：<b>凱</b> 尚欠 <b>涵</b></div><div class="settle-amount">${fmtCad(settle)}</div></div></div>`;
+  } else if(outstanding<=0){
+    settleEl.innerHTML=`<div class="settle-box" style="margin-bottom:1.5rem;background:var(--green-light);border-color:var(--green)"><div class="settle-icon">✅</div><div><div class="settle-text">全年已全數還清！涵共還凱 ${fmtCad(totalPaid)}</div></div></div>`;
+  } else {
+    settleEl.innerHTML=`<div class="settle-box" style="margin-bottom:1.5rem"><div class="settle-icon">💸</div><div><div class="settle-text">全年累計：<b>涵</b> 尚欠 <b>凱</b></div><div class="settle-amount">${fmtCad(outstanding)}</div><div style="font-size:12px;color:var(--text2);margin-top:4px">已還 ${fmtCad(totalPaid)} · 原始 ${fmtCad(-settle)}</div></div></div>`;
+  }
+
+  renderTrendChart();
+  renderDonutCharts();
 
   const mt=MONTHS.map(mm=>{
     const e=monthExp(mm),i=monthInc(mm);
@@ -1505,16 +1716,30 @@ function addExpense(mm){
   const pstExpr=document.getElementById('fpst-'+mm).value.trim();
   const note=document.getElementById('fo-'+mm).value.trim();
 
-  if(!date||!name||!priceExpr){showToast('⚠ 請填寫日期、項目名稱和金額');return;}
+  if(!date){showToast('⚠ 請填寫日期');return;}
   if(!date.startsWith(currentYear+'-'+mm)){showToast('⚠ 日期不在本月範圍');return;}
-  const price=evalFormula(priceExpr);
-  if(price===null||price<=0){showToast('⚠ 金額格式錯誤');return;}
   const gst=evalFormula(gstExpr)||0;
   const pst=evalFormula(pstExpr)||0;
+  const hasMain=name&&priceExpr;
+  if(!hasMain&&gst===0&&pst===0){showToast('⚠ 請填寫項目名稱和金額');return;}
 
-  expenses.push({id:nextExpId++,date,name,qty,priceExpr,price,cat,who,paidBy,gst,pst,note});
+  let added=[];
+  if(hasMain){
+    const price=evalFormula(priceExpr);
+    if(price===null||price<=0){showToast('⚠ 金額格式錯誤');return;}
+    expenses.push({id:nextExpId++,date,name,qty,priceExpr,price,cat,who,paidBy,gst:0,pst:0,note});
+    added.push(name);
+  }
+  if(gst>0){
+    expenses.push({id:nextExpId++,date,name:'GST',qty:1,priceExpr:String(gst),price:gst,cat:'GST',who,paidBy,gst:0,pst:0,note:''});
+    added.push('GST '+fmtCad(gst));
+  }
+  if(pst>0){
+    expenses.push({id:nextExpId++,date,name:'PST',qty:1,priceExpr:String(pst),price:pst,cat:'PST',who,paidBy,gst:0,pst:0,note:''});
+    added.push('PST '+fmtCad(pst));
+  }
   saveExp();clearExpForm(mm);renderMonth(mm);renderYear();
-  showToast('✓ 已新增：'+name);
+  showToast('✓ 已新增：'+added.join('、'));
 }
 
 function addIncome(mm){
