@@ -244,19 +244,50 @@ tr:hover .btn-sm{opacity:1;}
   .layout{grid-template-columns:1fr;}
   .sidebar{display:none;}
   .mob-nav{display:flex!important;}
+  .main{padding-bottom:60px;}
+
+  /* grids */
   .grid4{grid-template-columns:1fr 1fr;}
   .grid3{grid-template-columns:1fr 1fr;}
   .grid2{grid-template-columns:1fr;}
-  .year-grid{grid-template-columns:repeat(3,1fr);}
+  .year-grid{grid-template-columns:repeat(2,1fr);}
   .income-grid{grid-template-columns:1fr;}
-  .fr5{grid-template-columns:1fr 1fr;}
-  .fr3{grid-template-columns:1fr 1fr;}
-  .fr4{grid-template-columns:1fr 1fr;}
-  .page-body{padding:1rem;}
-  .page-header{padding:1rem;}
-  .search-input{width:110px;}
-  .tbl-wrap{font-size:11px;}
-  th,td{padding:6px 8px;}
+
+  /* forms → single column */
+  .fr5{grid-template-columns:1fr;}
+  .fr3{grid-template-columns:1fr;}
+  .fr4{grid-template-columns:1fr;}
+  .fr2{grid-template-columns:1fr;}
+  .tax-row{grid-template-columns:1fr 1fr;}
+
+  /* spacing */
+  .page-body{padding:0.75rem;}
+  .page-header{padding:0.75rem 1rem;flex-direction:column;align-items:flex-start;gap:8px;}
+  .section-header{flex-direction:column;align-items:flex-start;gap:8px;padding:0.75rem 1rem;}
+  .section-body{padding:0.75rem;}
+  .form-section{padding:1rem;}
+  .card{padding:1rem;}
+
+  /* table: hide less important columns */
+  .tbl-wrap{font-size:12px;}
+  th,td{padding:7px 8px;}
+  th:nth-child(6),td:nth-child(6),  /* 數量 */
+  th:nth-child(7),td:nth-child(7),  /* 金額(sub) */
+  th:nth-child(8),td:nth-child(8),  /* GST */
+  th:nth-child(9),td:nth-child(9)   /* PST */
+  {display:none;}
+
+  /* search + toggle wrap */
+  .search-input{width:100%;}
+  .view-toggle{align-self:flex-end;}
+
+  /* settle box */
+  .settle-box{flex-wrap:wrap;gap:8px;}
+  .settle-amount{font-size:18px;}
+
+  /* cards */
+  .card-value{font-size:16px;}
+  .who-toggle{flex-wrap:wrap;}
 }
 .mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:150;overflow-x:auto;padding:4px 0;}
 .mob-nav-inner{display:flex;gap:2px;padding:0 8px;min-width:max-content;}
@@ -274,7 +305,9 @@ tr:hover .btn-sm{opacity:1;}
   <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text3);">
     <span class="avatar av-kai">凱</span>
     <span class="avatar av-han">涵</span>
-    <span style="font-family:var(--mono)">2026</span>
+    <button onclick="switchYear(-1)" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0 2px">‹</button>
+    <span style="font-family:var(--mono)" id="hdr-year">2026</span>
+    <button onclick="switchYear(1)" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0 2px">›</button>
   </div>
 </header>
 
@@ -307,7 +340,7 @@ tr:hover .btn-sm{opacity:1;}
     <!-- 年度總覽 -->
     <div id="panel-year" class="panel active">
       <div class="page-header">
-        <div><div class="page-title">2026 年度總覽</div><div class="page-sub">凱 &amp; 涵 所有月份合計</div></div>
+        <div><div class="page-title" id="year-title">2026 年度總覽</div><div class="page-sub">凱 &amp; 涵 所有月份合計</div></div>
         <button class="hdr-btn" onclick="exportCSV()">📥 匯出全年 CSV</button>
       </div>
       <div class="page-body">
@@ -344,6 +377,25 @@ tr:hover .btn-sm{opacity:1;}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Mobile bottom nav -->
+<nav class="mob-nav" id="mob-nav">
+  <div class="mob-nav-inner">
+    <button class="mob-nav-btn active" onclick="showPanel('year',this)" id="mobnav-year">年度</button>
+    <button class="mob-nav-btn" onclick="showPanel('m01',this)" id="mobnav-m01">1月</button>
+    <button class="mob-nav-btn" onclick="showPanel('m02',this)" id="mobnav-m02">2月</button>
+    <button class="mob-nav-btn" onclick="showPanel('m03',this)" id="mobnav-m03">3月</button>
+    <button class="mob-nav-btn" onclick="showPanel('m04',this)" id="mobnav-m04">4月</button>
+    <button class="mob-nav-btn" onclick="showPanel('m05',this)" id="mobnav-m05">5月</button>
+    <button class="mob-nav-btn" onclick="showPanel('m06',this)" id="mobnav-m06">6月</button>
+    <button class="mob-nav-btn" onclick="showPanel('m07',this)" id="mobnav-m07">7月</button>
+    <button class="mob-nav-btn" onclick="showPanel('m08',this)" id="mobnav-m08">8月</button>
+    <button class="mob-nav-btn" onclick="showPanel('m09',this)" id="mobnav-m09">9月</button>
+    <button class="mob-nav-btn" onclick="showPanel('m10',this)" id="mobnav-m10">10月</button>
+    <button class="mob-nav-btn" onclick="showPanel('m11',this)" id="mobnav-m11">11月</button>
+    <button class="mob-nav-btn" onclick="showPanel('m12',this)" id="mobnav-m12">12月</button>
+  </div>
+</nav>
 
 <!-- ── Edit Expense Modal ── -->
 <div class="modal-overlay" id="edit-exp-modal" onclick="if(event.target===this)closeEditExp()">
@@ -455,7 +507,8 @@ const _s=(id,d,n,q,p,c)=>({id,date:d,name:n,qty:q,priceExpr:String(p),price:+p,c
 const _k=(id,d,n,q,p,c)=>({id,date:d,name:n,qty:q,priceExpr:String(p),price:+p,cat:c,who:'kai',paidBy:'kai',gst:0,pst:0,note:''});
 const _h=(id,d,n,q,p,c)=>({id,date:d,name:n,qty:q,priceExpr:String(p),price:+p,cat:c,who:'han',paidBy:'han',gst:0,pst:0,note:''});
 const _hk=(id,d,n,q,p,c)=>({id,date:d,name:n,qty:q,priceExpr:String(p),price:+p,cat:c,who:'han',paidBy:'kai',gst:0,pst:0,note:''});
-let expenses = JSON.parse(localStorage.getItem('hh_exp_2026')||'null') || [
+let currentYear = parseInt(localStorage.getItem('hh_cur_year')||'2026');
+let expenses = JSON.parse(localStorage.getItem('hh_exp_'+currentYear)||'null') || (currentYear===2026 ? [
 /* ── 2026-04 細項 ── */
 _s(1,'2026-04-03','可頌',1,5.23,'米/麵/泡麵/麵包'),
 _s(2,'2026-04-03','雞蛋',1,10.18,'雞蛋'),
@@ -911,8 +964,8 @@ _h(445,'2026-03-01','針+線',1,25.73,'個人消費'),
 /* ── 2026-04 住宅 ── */
 _k(446,'2026-04-01','凱凱房租',1,1376.00,'房租'),
 _hk(447,'2026-04-01','阿涵房租',1,1300.00,'房租'),
-];
-let incomes = JSON.parse(localStorage.getItem('hh_inc_2026')||'null') || [
+] : []);
+let incomes = JSON.parse(localStorage.getItem('hh_inc_'+currentYear)||'null') || (currentYear===2026 ? [
   {id:1,date:'2026-01-01',source:'期初餘額',amount:9068.41,who:'kai'},
   {id:2,date:'2026-01-01',source:'薪水',amount:7719.14,who:'kai'},
   {id:3,date:'2026-01-01',source:'薪水',amount:7286.27,who:'han'},
@@ -920,18 +973,18 @@ let incomes = JSON.parse(localStorage.getItem('hh_inc_2026')||'null') || [
   {id:5,date:'2026-02-01',source:'薪水',amount:6990.17,who:'han'},
   {id:6,date:'2026-03-01',source:'薪水',amount:5660.04,who:'kai'},
   {id:7,date:'2026-03-01',source:'薪水',amount:4835.24,who:'han'},
-];
+] : []);
 let nextExpId = expenses.length ? Math.max(...expenses.map(e=>e.id))+1 : 1;
 let nextIncId = incomes.length ? Math.max(...incomes.map(i=>i.id))+1 : 1;
 
-function saveExp(){ localStorage.setItem('hh_exp_2026', JSON.stringify(expenses)); }
-function saveInc(){ localStorage.setItem('hh_inc_2026', JSON.stringify(incomes)); }
+function saveExp(){ localStorage.setItem('hh_exp_'+currentYear, JSON.stringify(expenses)); }
+function saveInc(){ localStorage.setItem('hh_inc_'+currentYear, JSON.stringify(incomes)); }
 function fmtCad(n){ return 'CAD '+(+n).toFixed(2); }
 function sub(e){ return e.qty * e.price; }
 function total(e){ return sub(e) + (e.gst||0) + (e.pst||0); }
 
-function monthExp(mm){ return expenses.filter(e=>e.date.startsWith('2026-'+mm)); }
-function monthInc(mm){ return incomes.filter(i=>i.date.startsWith('2026-'+mm)); }
+function monthExp(mm){ return expenses.filter(e=>e.date.startsWith(currentYear+'-'+mm)); }
+function monthInc(mm){ return incomes.filter(i=>i.date.startsWith(currentYear+'-'+mm)); }
 
 /* ── Formula eval ── */
 function evalFormula(expr){
@@ -1236,6 +1289,31 @@ function renderMonth(mm){
   if(nav){nav.classList.toggle('has-data',exps.length>0||incs.length>0);document.getElementById('cnt-m'+mm).textContent=exps.length?exps.length+'筆':'';}
 }
 
+/* ──────── Year Switch ──────── */
+function switchYear(delta){
+  saveExp(); saveInc();
+  currentYear += delta;
+  localStorage.setItem('hh_cur_year', currentYear);
+  const stored_e = localStorage.getItem('hh_exp_'+currentYear);
+  const stored_i = localStorage.getItem('hh_inc_'+currentYear);
+  expenses = JSON.parse(stored_e||'null') || (currentYear===2026 ? expenses : []);
+  if(currentYear===2026 && !stored_e) expenses = JSON.parse(localStorage.getItem('hh_exp_2026')||'null') || expenses;
+  incomes  = JSON.parse(stored_i||'null') || (currentYear===2026 ? incomes : []);
+  if(currentYear===2026 && !stored_i) incomes = JSON.parse(localStorage.getItem('hh_inc_2026')||'null') || incomes;
+  nextExpId = expenses.length ? Math.max(...expenses.map(e=>e.id))+1 : 1;
+  nextIncId = incomes.length ? Math.max(...incomes.map(i=>i.id))+1 : 1;
+  document.getElementById('hdr-year').textContent = currentYear;
+  document.title = '凱 & 涵 家庭帳本 '+currentYear;
+  // Re-render all panels
+  ['01','02','03','04','05','06','07','08','09','10','11','12'].forEach(m=>{
+    const p=document.getElementById('panel-m'+m);
+    if(p) p.innerHTML='';
+  });
+  showPanel('year', document.querySelector('.nav-item'));
+  renderYear();
+  showToast(currentYear+' 年資料已載入');
+}
+
 /* ──────── Search ──────── */
 function filterTable(mm, q){
   const tbody=document.getElementById('tbl-'+mm);
@@ -1339,6 +1417,9 @@ function toggleCalDay(mm, dd, cell){
 
 /* ──────── Render Year ──────── */
 function renderYear(){
+  const yt=document.getElementById('year-title');
+  if(yt) yt.textContent=currentYear+' 年度總覽';
+  document.getElementById('hdr-year').textContent=currentYear;
   const allExps=expenses, allIncs=incomes;
   const {kaiSpend,hanSpend}=personalTotals(allExps);
   const kaiInc=allIncs.filter(i=>i.who==='kai').reduce((s,i)=>s+i.amount,0);
@@ -1425,7 +1506,7 @@ function addExpense(mm){
   const note=document.getElementById('fo-'+mm).value.trim();
 
   if(!date||!name||!priceExpr){showToast('⚠ 請填寫日期、項目名稱和金額');return;}
-  if(!date.startsWith('2026-'+mm)){showToast('⚠ 日期不在本月範圍');return;}
+  if(!date.startsWith(currentYear+'-'+mm)){showToast('⚠ 日期不在本月範圍');return;}
   const price=evalFormula(priceExpr);
   if(price===null||price<=0){showToast('⚠ 金額格式錯誤');return;}
   const gst=evalFormula(gstExpr)||0;
