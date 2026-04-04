@@ -344,6 +344,9 @@ tr:hover .btn-sm{opacity:1;}
 
     <div class="nav-section">工具</div>
     <button class="nav-item" onclick="exportCSV()"><div class="nav-dot"></div>匯出全年 CSV</button>
+    <button class="nav-item" onclick="exportJSON()"><div class="nav-dot"></div>📦 匯出資料</button>
+    <button class="nav-item" onclick="importJSONTrigger()"><div class="nav-dot"></div>📂 匯入資料</button>
+    <input type="file" id="import-json-input" accept=".json" style="display:none" onchange="importJSON(this)">
   </aside>
 
   <main class="main">
@@ -1916,6 +1919,46 @@ function showPanel(name,btn){
 function showPanelByMonth(mm){showPanel('m'+mm,document.getElementById('nav-m'+mm));}
 
 /* ──────── Export ──────── */
+function exportJSON(){
+  const today=new Date().toISOString().slice(0,10);
+  const data={};
+  // 收集所有相關 key
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k==='hh_cats'||k==='hh_cur_year'||
+       k.startsWith('hh_exp_')||k.startsWith('hh_inc_')||
+       k.startsWith('hh_spaid_')||k.startsWith('hh_settled_')){
+      data[k]=localStorage.getItem(k);
+    }
+  }
+  const json=JSON.stringify(data,null,2);
+  const blob=new Blob([json],{type:'application/json;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`家庭帳本_${today}.json`;a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ 資料已匯出');
+}
+function importJSONTrigger(){
+  document.getElementById('import-json-input').value='';
+  document.getElementById('import-json-input').click();
+}
+function importJSON(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(!confirm('確定要匯入？現有資料將被覆蓋。'))return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      Object.keys(data).forEach(k=>localStorage.setItem(k,data[k]));
+      showToast('✓ 匯入成功，重新整理中...');
+      setTimeout(()=>location.reload(),1000);
+    }catch(err){
+      alert('匯入失敗：JSON 格式錯誤');
+    }
+  };
+  reader.readAsText(file);
+}
 function exportCSV(){
   let csv='\uFEFF月份,日期,項目,分類,屬於,付款人,數量,金額,GST,PST,小計,備註\n';
   [...expenses].sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{
