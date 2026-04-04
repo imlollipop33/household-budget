@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>同步家庭帳本</title>
+<style>
+  body { font-family: -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f5f5f5; }
+  .box { background: white; border-radius: 16px; padding: 2rem; text-align: center; max-width: 320px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .icon { font-size: 3rem; margin-bottom: 1rem; }
+  h1 { font-size: 1.3rem; margin: 0 0 0.5rem; color: #1a1a1a; }
+  p { color: #666; font-size: 0.9rem; margin: 0 0 1.5rem; }
+  .status { font-size: 1rem; color: #2563eb; font-weight: 500; min-height: 1.5rem; }
+  .error { color: #dc2626; }
+  .success { color: #16a34a; }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="icon">☁️</div>
+  <h1>家庭帳本同步</h1>
+  <p>正在從雲端載入最新資料...</p>
+  <div class="status" id="status">連接中...</div>
+</div>
+<script>
+const SYNC_URL = 'https://script.google.com/macros/s/AKfycbz2fyFw2U5FY7Uvz6fn04b2lk_FdOVTBR4pQvP8Cj29NhDzSXT9482t8BCtSUvebg/exec';
+const el = document.getElementById('status');
+fetch(SYNC_URL)
+  .then(r => r.json())
+  .then(d => {
+    if (!d.ok) throw new Error('雲端回應錯誤');
+    const data = d.data;
+    let count = 0;
+    for (const key in data) {
+      if (key && data[key] !== undefined) {
+        localStorage.setItem(key, data[key]);
+        count++;
+      }
+    }
+    el.textContent = '✅ 同步完成！載入 ' + count + ' 筆資料';
+    el.className = 'status success';
+    setTimeout(() => {
+      window.location.href = 'https://imlollipop33.github.io/household-budget/';
+    }, 1500);
+  })
+  .catch(err => {
+    el.textContent = '❌ 失敗：' + err.message;
+    el.className = 'status error';
+  });
+</script>
+</body>
+</html>
