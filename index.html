@@ -2068,6 +2068,31 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
+/* ──────── Auto Cloud Load on Start ──────── */
+(async function autoLoad(){
+  try{
+    const r=await fetch(SYNC_URL);
+    const d=await r.json();
+    if(d.ok && d.data){
+      for(const key in d.data){
+        if(key && d.data[key]!==undefined) localStorage.setItem(key,d.data[key]);
+      }
+      expenses=JSON.parse(localStorage.getItem('hh_exp_'+currentYear)||'[]');
+      incomes=JSON.parse(localStorage.getItem('hh_inc_'+currentYear)||'[]');
+      nextExpId=expenses.length?Math.max(...expenses.map(e=>e.id))+1:1;
+      nextIncId=incomes.length?Math.max(...incomes.map(i=>i.id))+1:1;
+    }
+  }catch(e){}
+  renderYear();
+  MONTHS.forEach(mm=>{
+    const e=monthExp(mm),i=monthInc(mm);
+    if(e.length||i.length){
+      document.getElementById('nav-m'+mm).classList.add('has-data');
+      document.getElementById('cnt-m'+mm).textContent=e.length?e.length+'筆':'';
+    }
+  });
+})();
+
 /* ──────── Init ──────── */
 renderYear();
 MONTHS.forEach(mm=>{
