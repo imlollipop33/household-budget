@@ -1581,6 +1581,7 @@ function renderDonutCharts(){
         <span style="width:7px;height:7px;border-radius:50%;background:${COLORS[i%COLORS.length]};flex-shrink:0"></span>
         <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cat}</span>
         <span style="color:var(--text3);font-family:monospace;font-size:9px;flex-shrink:0">${val>=1000?(val/1000).toFixed(1)+'k':val.toFixed(0)}</span>
+        <span style="color:var(--text3);font-family:monospace;font-size:9px;flex-shrink:0">${sum>0?(val/sum*100).toFixed(1)+'%':''}</span>
       </div>`).join('');
     const ac=who==='kai'?'#378ADD':'#993556', name=who==='kai'?'凱':'涵';
     return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px">
