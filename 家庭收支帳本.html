@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>凱 &amp; 涵 家庭帳本 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F3EE;--surface:#FFF;--surface2:#F0EDE6;--border:#E2DDD4;
+  --text:#1C1A17;--text2:#7A7468;--text3:#B0AA9F;
+  --accent:#D85A30;--accent-light:#FAECE7;
+  --green:#1D9E75;--green-light:#E1F5EE;
+  --blue:#378ADD;--blue-light:#E6F1FB;
+  --amber:#BA7517;--amber-light:#FAEEDA;
+  --pink:#993556;--pink-light:#FBEAF0;
+  --kai:#378ADD;--kai-light:#E6F1FB;
+  --han:#993556;--han-light:#FBEAF0;
+  --mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── Header ── */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;}
+.logo{font-size:15px;font-weight:700;letter-spacing:-0.02em;display:flex;align-items:center;gap:10px;}
+.logo-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--kai),var(--han));border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:700;}
+.avatar{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-size:11px;font-weight:700;color:white;}
+.av-kai{background:var(--kai);}
+.av-han{background:var(--han);}
+
+/* ── Layout ── */
+.layout{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 60px);}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:1rem;display:flex;flex-direction:column;gap:2px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;}
+.nav-section{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;padding:0 8px;margin:10px 0 4px;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;font-size:13px;cursor:pointer;color:var(--text2);transition:all 0.12s;border:none;background:none;width:100%;text-align:left;font-family:inherit;}
+.nav-item:hover{background:var(--bg);color:var(--text);}
+.nav-item.active{background:var(--accent-light);color:var(--accent);font-weight:500;}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background 0.2s;}
+.nav-item.active .nav-dot{background:var(--accent);}
+.nav-item.has-data .nav-dot{background:var(--green);}
+.nav-badge{margin-left:auto;font-size:10px;font-family:var(--mono);color:var(--text3);}
+.nav-item.active .nav-badge{color:var(--accent);}
+
+.main{overflow-y:auto;}
+.panel{display:none;}.panel.active{display:block;}
+.page-header{background:var(--surface);border-bottom:1px solid var(--border);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+.page-title{font-size:20px;font-weight:700;letter-spacing:-0.02em;}
+.page-sub{font-size:12px;color:var(--text3);margin-top:2px;}
+.page-body{padding:1.5rem 2rem;}
+
+/* ── Cards ── */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;}
+.card.kai-card{border-top:3px solid var(--kai);}
+.card.han-card{border-top:3px solid var(--han);}
+.card.settle-card{border:2px solid var(--amber);background:var(--amber-light);}
+.card-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:8px;}
+.card-value{font-family:var(--mono);font-size:20px;font-weight:500;}
+.card-value.red{color:var(--accent);}
+.card-value.green{color:var(--green);}
+.card-value.kai{color:var(--kai);}
+.card-value.han{color:var(--han);}
+.card-value.amber{color:var(--amber);}
+.card-sub{font-size:11px;color:var(--text2);margin-top:4px;}
+
+/* ── Settlement box ── */
+.settle-box{background:var(--amber-light);border:1px solid #FAC775;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;}
+.settle-icon{font-size:24px;flex-shrink:0;}
+.settle-text{font-size:14px;font-weight:500;}
+.settle-amount{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--amber);}
+
+/* ── Year month grid ── */
+.year-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem;}
+.month-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:border-color 0.15s;}
+.month-card:hover{border-color:var(--accent);}
+.month-card-name{font-size:11px;font-weight:700;color:var(--text3);margin-bottom:4px;}
+.month-card-total{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--accent);}
+.month-card-sub{font-size:10px;color:var(--text3);margin-top:3px;}
+.month-card-bar{height:3px;border-radius:2px;background:var(--bg);margin-top:8px;overflow:hidden;}
+.month-card-bar-fill{height:100%;border-radius:2px;background:var(--accent);}
+
+/* ── Section ── */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1.5rem;overflow:hidden;}
+.section-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.section-title{font-size:13px;font-weight:700;}
+.section-body{padding:1.25rem;}
+
+/* ── Bar chart ── */
+.bar-list{display:flex;flex-direction:column;gap:10px;}
+.bar-row{display:flex;align-items:center;gap:10px;}
+.bar-cat{width:90px;font-size:12px;color:var(--text2);text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bar-track{flex:1;height:10px;background:var(--bg);border-radius:5px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:5px;transition:width 0.5s cubic-bezier(0.4,0,0.2,1);}
+.bar-val{width:80px;font-size:11px;font-family:var(--mono);color:var(--text2);}
+
+/* ── Table ── */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:9px 12px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--bg);}
+.mono{font-family:var(--mono);}
+.tbl-sub td{background:var(--bg);font-size:12px;color:var(--text2);}
+.tbl-grand td{font-weight:700;}
+.tbl-grand .mono{color:var(--accent);}
+
+/* ── Badges ── */
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.03em;padding:3px 8px;border-radius:20px;white-space:nowrap;}
+.b-veg{background:var(--green-light);color:#0F6E56;}
+.b-meat{background:var(--accent-light);color:#993C1D;}
+.b-snack{background:var(--amber-light);color:var(--amber);}
+.b-drink{background:var(--blue-light);color:#185FA5;}
+.b-eatout{background:var(--pink-light);color:var(--pink);}
+.b-food{background:var(--green-light);color:#0F6E56;}
+.b-daily{background:#F1EFE8;color:#5F5E5A;}
+.b-tax{background:var(--surface2);color:var(--text3);}
+.b-kai{background:var(--kai-light);color:var(--kai);}
+.b-han{background:var(--han-light);color:var(--han);}
+.b-shared{background:#F1EFE8;color:#5F5E5A;}
+
+/* ── Who chip ── */
+.who-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.who-kai{background:var(--kai-light);color:var(--kai);}
+.who-han{background:var(--han-light);color:var(--han);}
+.who-shared{background:#F1EFE8;color:#5F5E5A;}
+
+/* ── Form ── */
+.form-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;}
+.fsec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.form-divider{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin:1rem 0 0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);}
+.frow{display:grid;gap:12px;align-items:end;margin-bottom:12px;}
+.fr5{grid-template-columns:130px 1fr 80px 1fr 120px;}
+.fr3{grid-template-columns:1fr 1fr 1fr;}
+.fr2{grid-template-columns:1fr 1fr;}
+.fr4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.fgroup{display:flex;flex-direction:column;gap:5px;}
+label.fl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);}
+
+input[type=text],input[type=number],input[type=date],select{
+  padding:8px 10px;border:1px solid var(--border);border-radius:7px;
+  font-family:inherit;font-size:13px;background:var(--bg);color:var(--text);
+  outline:none;transition:border-color 0.15s;width:100%;
+}
+input:focus,select:focus{border-color:var(--accent);background:white;}
+input.formula{font-family:var(--mono);}
+
+.formula-hint{font-size:11px;font-family:var(--mono);color:var(--green);margin-top:3px;min-height:16px;}
+.formula-hint.err{color:var(--accent);}
+
+/* Who toggle */
+.who-toggle{display:flex;gap:6px;}
+.who-btn{flex:1;padding:8px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.12s;color:var(--text2);}
+.who-btn.sel-kai{border-color:var(--kai);background:var(--kai-light);color:var(--kai);}
+.who-btn.sel-han{border-color:var(--han);background:var(--han-light);color:var(--han);}
+.who-btn.sel-shared{border-color:#888;background:#F1EFE8;color:#5F5E5A;}
+
+/* Tax row */
+.tax-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 14px;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-bottom:12px;}
+.tax-row label.fl{color:var(--amber);}
+
+/* Calc preview */
+.calc-preview{background:var(--green-light);border:1px solid #9FE1CB;border-radius:7px;padding:8px 12px;font-size:12px;font-family:var(--mono);color:var(--green);margin-bottom:10px;}
+
+/* Income form */
+.income-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+.income-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;}
+.income-card.kai-card{border-top:3px solid var(--kai);}
+.income-card.han-card{border-top:3px solid var(--han);}
+.income-title{font-size:13px;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.income-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.income-item:last-child{border-bottom:none;}
+.income-total{display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;font-weight:700;font-size:14px;}
+
+.btn{padding:9px 20px;border-radius:7px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.12s;border:none;}
+.btn-primary{background:var(--accent);color:white;}
+.btn-primary:hover{background:#C04A22;}
+.btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
+.btn-secondary:hover{background:var(--border);}
+.btn-sm{padding:4px 9px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:none;color:var(--text3);font-family:inherit;opacity:0;transition:opacity 0.12s;}
+tr:hover .btn-sm{opacity:1;}
+.btn-sm:hover{background:#FCEBEB;color:var(--accent);border-color:#F0C4B3;}
+.btn-sm.edit-btn:hover{background:var(--blue-light);color:var(--blue);border-color:#BDD9F5;}
+.hdr-btn{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;}
+.hdr-btn:hover{background:var(--border);}
+
+.cat-2col{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.cat-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:7px;font-size:12px;}
+.cat-amt{font-family:var(--mono);font-weight:500;font-size:11px;}
+.empty-state{text-align:center;padding:2.5rem;color:var(--text3);font-size:13px;}
+
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--text);color:white;padding:11px 18px;border-radius:9px;font-size:13px;font-weight:500;opacity:0;transform:translateY(8px);transition:all 0.2s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* ── Modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:16px;padding:2rem;width:680px;max-width:94vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.22);}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:1.5rem;display:flex;align-items:center;gap:10px;}
+.modal-footer{display:flex;gap:8px;margin-top:1.5rem;justify-content:flex-end;}
+
+/* inline income action buttons */
+.inc-actions{display:flex;gap:6px;align-items:center;}
+.inc-btn{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:none;color:var(--text3);font-family:inherit;}
+.inc-btn:hover{background:#FCEBEB;color:var(--accent);border-color:#F0C4B3;}
+.inc-btn.edit:hover{background:var(--blue-light);color:var(--blue);border-color:#BDD9F5;}
+
+/* ── Calendar view ── */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:1rem;}
+.cal-weekday{text-align:center;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);padding:4px 0;}
+.cal-cell{min-height:72px;border-radius:8px;background:var(--bg);border:1px solid var(--border);padding:6px;cursor:default;transition:border-color 0.12s;position:relative;}
+.cal-cell.has-exp{cursor:pointer;}
+.cal-cell.has-exp:hover{border-color:var(--accent);}
+.cal-cell.empty{background:transparent;border-color:transparent;}
+.cal-cell.today{border-color:var(--accent);background:var(--accent-light);}
+.cal-day-num{font-size:11px;font-weight:700;color:var(--text3);margin-bottom:3px;}
+.cal-cell.today .cal-day-num{color:var(--accent);}
+.cal-day-total{font-size:11px;font-family:var(--mono);font-weight:500;color:var(--text);}
+.cal-day-items{margin-top:3px;display:flex;flex-direction:column;gap:2px;}
+.cal-day-dot{font-size:9px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
+.cal-popup{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;margin:0 1rem 1rem;box-shadow:0 4px 16px rgba(0,0,0,0.1);}
+.cal-popup-title{font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text2);}
+.cal-popup-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.cal-popup-row:last-child{border-bottom:none;}
+.cal-popup-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px;}
+.cal-popup-amt{font-family:var(--mono);font-size:11px;flex-shrink:0;}
+.view-toggle{display:flex;gap:4px;}
+.view-toggle .hdr-btn{padding:5px 12px;}
+.view-toggle .hdr-btn.active{background:var(--accent);color:white;border-color:var(--accent);}
+
+/* ── Search ── */
+.search-input{padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--bg);color:var(--text);width:160px;font-family:inherit;}
+.search-input:focus{border-color:var(--accent);background:white;outline:none;}
+
+/* ── Settled badge ── */
+.settled-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;}
+.settled-btn.settled{background:var(--green-light);color:var(--green);border-color:var(--green);}
+
+/* ── Mobile ── */
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .mob-nav{display:flex!important;}
+  .grid4{grid-template-columns:1fr 1fr;}
+  .grid3{grid-template-columns:1fr 1fr;}
+  .grid2{grid-template-columns:1fr;}
+  .year-grid{grid-template-columns:repeat(3,1fr);}
+  .income-grid{grid-template-columns:1fr;}
+  .fr5{grid-template-columns:1fr 1fr;}
+  .fr3{grid-template-columns:1fr 1fr;}
+  .fr4{grid-template-columns:1fr 1fr;}
+  .page-body{padding:1rem;}
+  .page-header{padding:1rem;}
+  .search-input{width:110px;}
+  .tbl-wrap{font-size:11px;}
+  th,td{padding:6px 8px;}
+}
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:150;overflow-x:auto;padding:4px 0;}
+.mob-nav-inner{display:flex;gap:2px;padding:0 8px;min-width:max-content;}
+.mob-nav-btn{padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;border:none;background:none;color:var(--text2);font-family:inherit;white-space:nowrap;}
+.mob-nav-btn.active{background:var(--accent-light);color:var(--accent);font-weight:500;}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">帳</div>
+    凱 &amp; 涵 家庭帳本
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text3);">
+    <span class="avatar av-kai">凱</span>
+    <span class="avatar av-han">涵</span>
+    <span style="font-family:var(--mono)">2026</span>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="nav-section">總覽</div>
+    <button class="nav-item active" onclick="showPanel('year',this)">
+      <div class="nav-dot"></div>年度總覽
+    </button>
+
+    <div class="nav-section">月份記帳</div>
+    <button class="nav-item" onclick="showPanel('m01',this)" id="nav-m01"><div class="nav-dot"></div>1月<span class="nav-badge" id="cnt-m01"></span></button>
+    <button class="nav-item" onclick="showPanel('m02',this)" id="nav-m02"><div class="nav-dot"></div>2月<span class="nav-badge" id="cnt-m02"></span></button>
+    <button class="nav-item" onclick="showPanel('m03',this)" id="nav-m03"><div class="nav-dot"></div>3月<span class="nav-badge" id="cnt-m03"></span></button>
+    <button class="nav-item" onclick="showPanel('m04',this)" id="nav-m04"><div class="nav-dot"></div>4月<span class="nav-badge" id="cnt-m04"></span></button>
+    <button class="nav-item" onclick="showPanel('m05',this)" id="nav-m05"><div class="nav-dot"></div>5月<span class="nav-badge" id="cnt-m05"></span></button>
+    <button class="nav-item" onclick="showPanel('m06',this)" id="nav-m06"><div class="nav-dot"></div>6月<span class="nav-badge" id="cnt-m06"></span></button>
+    <button class="nav-item" onclick="showPanel('m07',this)" id="nav-m07"><div class="nav-dot"></div>7月<span class="nav-badge" id="cnt-m07"></span></button>
+    <button class="nav-item" onclick="showPanel('m08',this)" id="nav-m08"><div class="nav-dot"></div>8月<span class="nav-badge" id="cnt-m08"></span></button>
+    <button class="nav-item" onclick="showPanel('m09',this)" id="nav-m09"><div class="nav-dot"></div>9月<span class="nav-badge" id="cnt-m09"></span></button>
+    <button class="nav-item" onclick="showPanel('m10',this)" id="nav-m10"><div class="nav-dot"></div>10月<span class="nav-badge" id="cnt-m10"></span></button>
+    <button class="nav-item" onclick="showPanel('m11',this)" id="nav-m11"><div class="nav-dot"></div>11月<span class="nav-badge" id="cnt-m11"></span></button>
+    <button class="nav-item" onclick="showPanel('m12',this)" id="nav-m12"><div class="nav-dot"></div>12月<span class="nav-badge" id="cnt-m12"></span></button>
+
+    <div class="nav-section">工具</div>
+    <button class="nav-item" onclick="exportCSV()"><div class="nav-dot"></div>匯出全年 CSV</button>
+  </aside>
+
+  <main class="main">
+    <!-- 年度總覽 -->
+    <div id="panel-year" class="panel active">
+      <div class="page-header">
+        <div><div class="page-title">2026 年度總覽</div><div class="page-sub">凱 &amp; 涵 所有月份合計</div></div>
+        <button class="hdr-btn" onclick="exportCSV()">📥 匯出全年 CSV</button>
+      </div>
+      <div class="page-body">
+        <div class="grid4" id="year-summary"></div>
+        <div id="year-settle"></div>
+        <div class="year-grid" id="year-months"></div>
+        <div class="grid2">
+          <div class="section">
+            <div class="section-header"><div class="section-title">全年類別分布</div></div>
+            <div class="section-body"><div class="bar-list" id="year-bar"></div></div>
+          </div>
+          <div class="section">
+            <div class="section-header"><div class="section-title">類別金額明細</div></div>
+            <div class="section-body"><div class="cat-2col" id="year-cats"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Month panels (built dynamically) -->
+    <div id="panel-m01" class="panel"></div>
+    <div id="panel-m02" class="panel"></div>
+    <div id="panel-m03" class="panel"></div>
+    <div id="panel-m04" class="panel"></div>
+    <div id="panel-m05" class="panel"></div>
+    <div id="panel-m06" class="panel"></div>
+    <div id="panel-m07" class="panel"></div>
+    <div id="panel-m08" class="panel"></div>
+    <div id="panel-m09" class="panel"></div>
+    <div id="panel-m10" class="panel"></div>
+    <div id="panel-m11" class="panel"></div>
+    <div id="panel-m12" class="panel"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── Edit Expense Modal ── -->
+<div class="modal-overlay" id="edit-exp-modal" onclick="if(event.target===this)closeEditExp()">
+  <div class="modal">
+    <div class="modal-title">✏️ 編輯支出</div>
+    <div class="frow fr5">
+      <div class="fgroup"><label class="fl">日期</label><input type="date" id="eed-date"></div>
+      <div class="fgroup"><label class="fl">項目名稱</label><input type="text" id="eed-name" placeholder="例：雞蛋"></div>
+      <div class="fgroup"><label class="fl">數量</label><input type="number" id="eed-qty" value="1" min="1" step="1"></div>
+      <div class="fgroup">
+        <label class="fl">金額（支援公式）</label>
+        <input type="text" id="eed-price" class="formula" placeholder="例：16.15">
+        <div class="formula-hint" id="eed-price-hint"></div>
+      </div>
+      <div class="fgroup">
+        <label class="fl">分類</label>
+        <select id="eed-cat" onchange="handleCatChange(this)"></select>
+      </div>
+    </div>
+
+    <div class="form-divider">誰的費用 ＆ 誰付款</div>
+    <div class="frow fr2" style="margin-bottom:12px">
+      <div class="fgroup">
+        <label class="fl">這筆費用屬於</label>
+        <div class="who-toggle">
+          <button class="who-btn" id="ewho-kai" onclick="setEditExpWho('kai')">凱的</button>
+          <button class="who-btn" id="ewho-han" onclick="setEditExpWho('han')">涵的</button>
+          <button class="who-btn" id="ewho-shared" onclick="setEditExpWho('shared')">共同（各一半）</button>
+        </div>
+      </div>
+      <div class="fgroup">
+        <label class="fl">誰付的錢</label>
+        <div class="who-toggle">
+          <button class="who-btn" id="epaid-kai" onclick="setEditExpPaid('kai')">凱付</button>
+          <button class="who-btn" id="epaid-han" onclick="setEditExpPaid('han')">涵付</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-divider">稅金（選填）</div>
+    <div class="tax-row">
+      <div class="fgroup"><label class="fl">GST 金額 (CAD)</label><input type="text" id="eed-gst" class="formula" placeholder="0"></div>
+      <div class="fgroup"><label class="fl">PST 金額 (CAD)</label><input type="text" id="eed-pst" class="formula" placeholder="0"></div>
+    </div>
+
+    <div class="fgroup" style="margin-top:4px">
+      <label class="fl">備註（可選）</label>
+      <input type="text" id="eed-note" placeholder="例：T&T 購入">
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeEditExp()">取消</button>
+      <button class="btn btn-primary" onclick="saveEditExpense()">儲存變更</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Edit Income Modal ── -->
+<div class="modal-overlay" id="edit-inc-modal" onclick="if(event.target===this)closeEditInc()">
+  <div class="modal" style="width:480px">
+    <div class="modal-title">✏️ 編輯收入</div>
+    <div class="frow fr3">
+      <div class="fgroup"><label class="fl">日期</label><input type="date" id="eid-date"></div>
+      <div class="fgroup"><label class="fl">來源</label><input type="text" id="eid-source" placeholder="例：薪水"></div>
+      <div class="fgroup">
+        <label class="fl">金額（支援公式）</label>
+        <input type="text" id="eid-amount" class="formula" placeholder="例：3500">
+        <div class="formula-hint" id="eid-amount-hint"></div>
+      </div>
+    </div>
+    <div class="fgroup" style="margin-bottom:1rem">
+      <label class="fl">誰的收入</label>
+      <div class="who-toggle">
+        <button class="who-btn" id="eiwho-kai" onclick="setEditIncWho('kai')">凱</button>
+        <button class="who-btn" id="eiwho-han" onclick="setEditIncWho('han')">涵</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeEditInc()">取消</button>
+      <button class="btn btn-primary" onclick="saveEditIncome()">儲存變更</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ───────────── Constants ───────────── */
+const MONTHS=['01','02','03','04','05','06','07','08','09','10','11','12'];
+const MN=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+let CATS=(()=>{const d=['蔬菜','肉類','水果','飲料','零食','米/麵/泡麵/麵包','雞蛋','牛奶','咖啡','外食','冷凍食品','日用品','調味料','保健食品','房租','住宅','交通','個人消費','GST','PST'];return JSON.parse(localStorage.getItem('hh_cats')||'null')||d;})();
+function populateCatSel(sel,val){sel.innerHTML=CATS.map(c=>`<option value="${c}">${c}</option>`).join('')+`<option value="__new__">＋ 新增分類…</option>`;sel.value=val&&CATS.includes(val)?val:CATS[0];sel.dataset.prev=sel.value;}
+function handleCatChange(sel){if(sel.value!=='__new__'){sel.dataset.prev=sel.value;return;}const prev=sel.dataset.prev||CATS[0];const n=(prompt('輸入新分類名稱：')||'').trim();if(n&&!CATS.includes(n)){CATS.push(n);localStorage.setItem('hh_cats',JSON.stringify(CATS));document.querySelectorAll('select').forEach(s=>{if([...s.options].some(o=>o.value==='__new__')){const cur=s===sel?n:(s.dataset.prev||CATS[0]);populateCatSel(s,cur);}});}else{sel.value=n&&CATS.includes(n)?n:prev;}}
+const BADGE={
+  '蔬菜':'b-veg','肉類':'b-meat','水果':'b-veg','飲料':'b-drink','零食':'b-snack',
+  '米/麵/泡麵/麵包':'b-food','雞蛋':'b-meat','牛奶':'b-food','咖啡':'b-drink',
+  '外食':'b-eatout','日用品':'b-daily','保健食品':'b-daily','GST':'b-tax','PST':'b-tax'
+};
+const BAR_COLOR={
+  '蔬菜':'#1D9E75','肉類':'#D85A30','水果':'#EF9F27','飲料':'#378ADD',
+  '零食':'#BA7517','米/麵/泡麵/麵包':'#639922','雞蛋':'#D4537E','牛奶':'#1D9E75',
+  '咖啡':'#884400','外食':'#993556','日用品':'#888780','保健食品':'#534AB7',
+  'GST':'#B0AA9F','PST':'#B0AA9F'
+};
+
+/* ── 初始化分類下拉選單 ── */
+populateCatSel(document.getElementById('eed-cat'), CATS[0]);
+
+/* ───────────── Data ───────────── */
+const _s=(id,d,n,q,p,c)=>({id,date:d,name:n,qty:q,priceExpr:String(p),price:+p,cat:c,who:'shared',paidBy:'kai',gst:0,pst:0,note:''});
+const _k=(id,d,n,q,p,c)=>({id,date:d,name:n,qty:q,priceExpr:String(p),price:+p,cat:c,who:'kai',paidBy:'kai',gst:0,pst:0,note:''});
+const _h=(id,d,n,q,p,c)=>({id,date:d,name:n,qty:q,priceExpr:String(p),price:+p,cat:c,who:'han',paidBy:'han',gst:0,pst:0,note:''});
+const _hk=(id,d,n,q,p,c)=>({id,date:d,name:n,qty:q,priceExpr:String(p),price:+p,cat:c,who:'han',paidBy:'kai',gst:0,pst:0,note:''});
+let expenses = JSON.parse(localStorage.getItem('hh_exp_2026')||'null') || [
+/* ── 2026-04 細項 ── */
+_s(1,'2026-04-03','可頌',1,5.23,'米/麵/泡麵/麵包'),
+_s(2,'2026-04-03','雞蛋',1,10.18,'雞蛋'),
+_s(3,'2026-04-03','冰',2,2.72,'零食'),
+_s(4,'2026-04-03','可樂',1,2.65,'飲料'),
+_s(5,'2026-04-03','胡椒餅乾',1,2.56,'零食'),
+_s(6,'2026-04-03','奇多',2,3.97,'零食'),
+_s(7,'2026-04-03','餅乾',1,4.47,'零食'),
+_s(8,'2026-04-03','A&W',2,16.15,'外食'),
+_s(9,'2026-04-03','GST',1,0.65,'GST'),
+_s(10,'2026-04-03','PST',1,0.18,'PST'),
+/* ── 2026-01 細項 ── */
+_s(11,'2026-01-01','豆皮',1,6.49,'蔬菜'),
+_s(12,'2026-01-01','大白菜',1,3.01,'蔬菜'),
+_s(13,'2026-01-01','Coke Zero',1,4.15,'飲料'),
+_s(14,'2026-01-01','金針菇',1,0.99,'蔬菜'),
+_s(15,'2026-01-01','柳州螺獅粉',2,4.49,'米/麵/泡麵/麵包'),
+_s(16,'2026-01-01','杏鮑菇',2,0.99,'蔬菜'),
+_s(17,'2026-01-01','Dumplings',2,7.59,'米/麵/泡麵/麵包'),
+_s(18,'2026-01-01','鍋蓋',1,5.59,'日用品'),
+_s(19,'2026-01-01','GST',1,0.48,'GST'),
+_s(20,'2026-01-01','PST',1,0.67,'PST'),
+_s(21,'2026-01-02','草莓果醬',1,6.00,'零食'),
+_s(22,'2026-01-02','popcorn',1,4.00,'零食'),
+_s(23,'2026-01-02','雞胸肉',1,15.00,'肉類'),
+_s(24,'2026-01-02','蝦子',1,11.99,'肉類'),
+_s(25,'2026-01-02','GST',1,0.20,'GST'),
+_s(26,'2026-01-02','cable',6,8.99,'日用品'),
+_s(27,'2026-01-02','switch',2,17.98,'日用品'),
+_s(28,'2026-01-02','discount',1,-2.70,'日用品'),
+_s(29,'2026-01-02','PST',1,6.12,'PST'),
+_s(30,'2026-01-02','GST',1,4.32,'GST'),
+_s(31,'2026-01-04','麥當勞',1,24.87,'外食'),
+_s(32,'2026-01-04','洋芋片',2,1.47,'零食'),
+_s(33,'2026-01-04','即溶咖啡',1,5.99,'咖啡'),
+_s(34,'2026-01-04','牛奶',1,6.50,'牛奶'),
+_s(35,'2026-01-04','番茄',2,1.30,'蔬菜'),
+_s(36,'2026-01-04','豆腐',2,2.49,'蔬菜'),
+_s(37,'2026-01-04','GST',1,0.15,'GST'),
+_s(38,'2026-01-04','金針菇',2,0.99,'蔬菜'),
+_s(39,'2026-01-04','Canada dry汽水',1,3.05,'飲料'),
+_s(40,'2026-01-04','軟糖',1,4.69,'零食'),
+_s(41,'2026-01-04','泡菜',1,20.89,'蔬菜'),
+_s(42,'2026-01-04','GST',1,0.38,'GST'),
+_s(43,'2026-01-04','PST',1,0.20,'PST'),
+_s(44,'2026-01-06','雞蛋',1,10.12,'雞蛋'),
+_s(45,'2026-01-06','馬鈴薯',2,1.23,'蔬菜'),
+_s(46,'2026-01-06','大白菜',1,3.16,'蔬菜'),
+_s(47,'2026-01-06','甜甜圈',1,5.50,'米/麵/泡麵/麵包'),
+_s(48,'2026-01-06','止瀉藥',1,13.99,'保健食品'),
+_s(49,'2026-01-06','GST',1,0.70,'GST'),
+_s(50,'2026-01-06','PST',1,0.98,'PST'),
+_s(51,'2026-01-10','醬油',1,6.49,'日用品'),
+_s(52,'2026-01-10','廁所衛生紙',1,15.00,'日用品'),
+_s(53,'2026-01-10','PC巧克力餅乾',2,3.79,'零食'),
+_s(54,'2026-01-10','培根',1,4.00,'肉類'),
+_s(55,'2026-01-10','雞胸肉',1,15.00,'肉類'),
+_s(56,'2026-01-10','GST',1,0.94,'GST'),
+_s(57,'2026-01-10','PST',1,1.05,'PST'),
+_s(58,'2026-01-10','洋芋片',3,1.57,'零食'),
+_s(59,'2026-01-10','GST',1,0.24,'GST'),
+_s(60,'2026-01-10','螺獅粉',2,3.99,'蔬菜'),
+_s(61,'2026-01-11','Wendy Dave combo',2,13.08,'外食'),
+_s(62,'2026-01-11','GST',1,0.40,'GST'),
+_s(63,'2026-01-11','PST',1,1.31,'PST'),
+_s(64,'2026-01-11','Wendy Nuggets',1,3.69,'外食'),
+_s(65,'2026-01-11','GST',1,0.18,'GST'),
+_s(66,'2026-01-11','Wendy Ice cream',1,2.83,'外食'),
+_s(67,'2026-01-11','海帶芽',2,1.50,'蔬菜'),
+_s(68,'2026-01-11','音源線',1,6.99,'日用品'),
+_s(69,'2026-01-11','GST',1,0.35,'GST'),
+_s(70,'2026-01-11','PST',1,0.49,'PST'),
+_s(71,'2026-01-11','電子菸',2,45.00,'日用品'),
+_s(72,'2026-01-12','馬鈴薯泡麵',2,4.48,'米/麵/泡麵/麵包'),
+_s(73,'2026-01-12','辛拉麵',2,4.48,'米/麵/泡麵/麵包'),
+_s(74,'2026-01-12','洋芋片',1,1.57,'零食'),
+_s(75,'2026-01-12','Canada dry汽水',1,2.16,'飲料'),
+_s(76,'2026-01-12','Haribo軟糖',2,2.75,'零食'),
+_s(77,'2026-01-12','水餃',3,3.88,'米/麵/泡麵/麵包'),
+_s(78,'2026-01-12','大白菜',1,3.74,'蔬菜'),
+_s(79,'2026-01-12','牙膏',1,1.49,'日用品'),
+_s(80,'2026-01-12','GST',1,0.53,'GST'),
+_s(81,'2026-01-12','PST',1,0.25,'PST'),
+_s(82,'2026-01-12','泡菜',1,14.99,'蔬菜'),
+_s(83,'2026-01-12','白玉菇',2,0.89,'蔬菜'),
+_s(84,'2026-01-13','Original Black Caffe',1,2.21,'外食'),
+_s(85,'2026-01-13','Bacon Breakfast English Muffin',1,3.00,'外食'),
+_s(86,'2026-01-13','Ice Latte',1,3.69,'外食'),
+_s(87,'2026-01-13','GST',1,0.45,'GST'),
+_s(88,'2026-01-14','雙層牛肉吉士堡套餐',1,10.09,'外食'),
+_s(89,'2026-01-14','大麥克',1,10.99,'外食'),
+_s(90,'2026-01-14','Bag',1,0.25,'外食'),
+_s(91,'2026-01-14','GST',1,1.07,'GST'),
+_s(92,'2026-01-14','PST',1,0.39,'PST'),
+_s(93,'2026-01-16','蟹肉棒',1,6.97,'蔬菜'),
+_s(94,'2026-01-16','爆米花',1,4.49,'零食'),
+_s(95,'2026-01-16','洋芋片',1,2.50,'零食'),
+_s(96,'2026-01-16','樂事洋芋片',1,2.97,'零食'),
+_s(97,'2026-01-16','多力多滋',1,3.46,'零食'),
+_s(98,'2026-01-16','可樂',1,2.95,'飲料'),
+_s(99,'2026-01-16','牛奶',1,6.11,'牛奶'),
+_s(100,'2026-01-16','餐包',1,4.99,'米/麵/泡麵/麵包'),
+_s(101,'2026-01-16','GST',1,0.81,'GST'),
+_s(102,'2026-01-16','PST',1,0.20,'PST'),
+_s(103,'2026-01-17','Pizza Slice',1,32.34,'外食'),
+_s(104,'2026-01-17','潤髮乳',1,13.99,'日用品'),
+_s(105,'2026-01-17','GST',1,0.70,'GST'),
+_s(106,'2026-01-17','PST',1,0.98,'PST'),
+_s(107,'2026-01-17','可可粉',1,6.99,'飲料'),
+_s(108,'2026-01-18','金拉麵(辣)',1,5.99,'米/麵/泡麵/麵包'),
+_s(109,'2026-01-18','金拉麵(原味)',1,5.99,'米/麵/泡麵/麵包'),
+_s(110,'2026-01-18','杜雷斯',1,16.79,'日用品'),
+_s(111,'2026-01-18','NN培根',1,3.99,'肉類'),
+_s(112,'2026-01-18','GST',1,0.84,'GST'),
+_s(113,'2026-01-18','PST',1,1.18,'PST'),
+_s(114,'2026-01-18','HDMI',2,9.99,'日用品'),
+_s(115,'2026-01-18','GST',1,1.40,'GST'),
+_s(116,'2026-01-18','PST',1,1.00,'PST'),
+_s(117,'2026-01-20','咖啡',1,8.99,'咖啡'),
+_s(118,'2026-01-20','樂事洋芋片',2,2.97,'零食'),
+_s(119,'2026-01-20','蛋',1,10.12,'雞蛋'),
+_s(120,'2026-01-20','哈根達斯',2,5.44,'零食'),
+_s(121,'2026-01-20','GST',1,0.84,'GST'),
+_s(122,'2026-01-22','電子菸',2,40.00,'日用品'),
+_s(123,'2026-01-24','金針菇',2,0.89,'蔬菜'),
+_s(124,'2026-01-24','金拉麵(原味)',1,4.99,'米/麵/泡麵/麵包'),
+_s(125,'2026-01-24','金拉麵(辣味)',1,4.99,'米/麵/泡麵/麵包'),
+_s(126,'2026-01-24','精靈菇',1,0.99,'蔬菜'),
+_s(127,'2026-01-24','咖啡',1,7.49,'咖啡'),
+_s(128,'2026-01-24','麗滋餅乾',1,2.99,'零食'),
+_s(129,'2026-01-24','可樂',1,2.05,'飲料'),
+_s(130,'2026-01-24','玉米罐頭',2,1.50,'蔬菜'),
+_s(131,'2026-01-24','爆米花',1,4.00,'零食'),
+_s(132,'2026-01-24','大白菜',1,3.08,'蔬菜'),
+_s(133,'2026-01-24','雞胸肉',1,15.00,'肉類'),
+_s(134,'2026-01-24','牛角麵包',1,4.50,'米/麵/泡麵/麵包'),
+_s(135,'2026-01-24','GST',1,0.30,'GST'),
+_s(136,'2026-01-24','PST',1,0.14,'PST'),
+_s(137,'2026-01-24','牛肉麵+炸物',1,30.14,'外食'),
+_s(138,'2026-01-28','炸雞',1,3.83,'外食'),
+_s(139,'2026-01-29','pizza pizza',1,0.63,'外食'),
+_s(140,'2026-01-29','可樂',1,3.05,'飲料'),
+_s(141,'2026-01-29','雞蛋',1,10.35,'雞蛋'),
+_s(142,'2026-01-29','GST',1,0.15,'GST'),
+_s(143,'2026-01-29','PST',1,0.20,'PST'),
+_s(144,'2026-01-30','炸雞',1,3.83,'外食'),
+_s(145,'2026-01-30','洋芋片',2,2.97,'零食'),
+_s(146,'2026-01-30','洋芋片',2,4.29,'零食'),
+_s(147,'2026-01-30','能量飲',3,3.12,'飲料'),
+_s(148,'2026-01-30','果汁',1,4.66,'飲料'),
+_s(149,'2026-01-30','哈根達斯',1,5.00,'零食'),
+_s(150,'2026-01-30','豬肉水餃',1,4.66,'米/麵/泡麵/麵包'),
+_s(151,'2026-01-30','冷凍蝦仁',1,12.49,'肉類'),
+_s(152,'2026-01-30','GST',1,1.43,'GST'),
+_s(153,'2026-01-31','麥當勞',1,6.52,'外食'),
+_s(154,'2026-01-31','豬肉水餃',1,4.66,'米/麵/泡麵/麵包'),
+_s(155,'2026-01-31','起司蛋糕',1,7.00,'零食'),
+_s(156,'2026-01-31','止痛藥',1,8.99,'保健食品'),
+_s(157,'2026-01-31','洗髮精',1,8.99,'日用品'),
+_s(158,'2026-01-31','GST',1,0.90,'GST'),
+_s(159,'2026-01-31','PST',1,0.63,'PST'),
+_s(160,'2026-01-31','Salicylic Acid',1,8.70,'日用品'),
+_s(161,'2026-01-31','Niacinamide+Zinc',1,11.90,'日用品'),
+_s(162,'2026-01-31','Hyaluronic Acid+B5',1,21.10,'日用品'),
+_s(163,'2026-01-31','100%Plant',1,13.80,'日用品'),
+_s(164,'2026-01-31','Natural Moisturizing',1,15.90,'日用品'),
+_s(165,'2026-01-31','Squalane Cleanser',1,26.20,'日用品'),
+_s(166,'2026-01-31','GST',1,4.90,'GST'),
+_s(167,'2026-01-31','PST',1,6.83,'PST'),
+/* ── 2026-01 住宅/個人 ── */
+_k(168,'2026-01-01','凱凱房租',1,1395.00,'房租'),
+_hk(169,'2026-01-01','阿涵房租',1,1300.00,'房租'),
+_s(170,'2026-01-01','電話',1,28.02,'住宅'),
+_s(171,'2026-01-01','電費',1,82.17,'住宅'),
+_s(172,'2026-01-01','基本水費+稅',1,17.57,'住宅'),
+_s(173,'2026-01-01','汙水處理費',1,66.29,'住宅'),
+_s(174,'2026-01-01','上一期水費',1,21.00,'住宅'),
+_s(175,'2026-01-01','Storage Locker',1,30.00,'住宅'),
+_s(176,'2026-01-01','公設',1,21.00,'住宅'),
+_s(177,'2026-01-01','儲值交通卡',1,20.00,'交通'),
+_k(180,'2026-01-01','贍養費',1,1557.80,'個人消費'),
+_k(181,'2026-01-01','拍大頭貼',1,22.39,'個人消費'),
+_k(182,'2026-01-01','辦護照',1,60.00,'個人消費'),
+_h(183,'2026-01-01','駕照申請費',1,31.00,'個人消費'),
+_h(184,'2026-01-01','記帳錯誤補貼',1,44.35,'個人消費'),
+_hk(490,'2026-01-01','1月結算調整',1,-44.35,'個人消費'),
+_h(491,'2026-01-01','1月結算調整(平衡)',1,44.35,'個人消費'),
+/* ── 2026-02 細項 ── */
+_s(185,'2026-02-03','可樂',1,4.16,'飲料'),
+_s(186,'2026-02-03','百事可樂',1,11.89,'飲料'),
+_s(187,'2026-02-03','GST',1,0.74,'GST'),
+_s(188,'2026-02-03','PST',1,1.03,'PST'),
+_s(189,'2026-02-03','外送早餐',1,7.08,'外食'),
+_s(190,'2026-02-05','金針菇',2,0.99,'蔬菜'),
+_s(191,'2026-02-05','咖哩塊',1,5.99,'蔬菜'),
+_s(192,'2026-02-05','海帶芽',1,4.99,'蔬菜'),
+_s(193,'2026-02-05','辛拉麵',1,4.79,'米/麵/泡麵/麵包'),
+_s(194,'2026-02-05','炸醬麵',1,5.29,'米/麵/泡麵/麵包'),
+_s(195,'2026-02-05','馬鈴薯麵',1,4.79,'米/麵/泡麵/麵包'),
+_s(196,'2026-02-05','多力多滋',1,3.46,'零食'),
+_s(197,'2026-02-05','樂事',1,2.47,'零食'),
+_s(198,'2026-02-05','GST',1,0.30,'GST'),
+_s(199,'2026-02-05','橄欖油',1,9.99,'日用品'),
+_s(200,'2026-02-05','咖啡',1,18.99,'咖啡'),
+_s(201,'2026-02-05','洋蔥',1,2.94,'蔬菜'),
+_s(202,'2026-02-05','馬鈴薯',1,2.67,'蔬菜'),
+_s(203,'2026-02-05','培根',2,3.99,'肉類'),
+_s(204,'2026-02-05','蟹肉棒',1,10.00,'肉類'),
+_s(205,'2026-02-05','咖啡過濾壺',1,3.00,'日用品'),
+_s(206,'2026-02-05','GST',1,0.15,'GST'),
+_s(207,'2026-02-05','PST',1,0.21,'PST'),
+_s(208,'2026-02-08','義大利麵',1,2.99,'米/麵/泡麵/麵包'),
+_s(209,'2026-02-08','義大利肉醬',1,2.97,'日用品'),
+_s(210,'2026-02-08','洗碗精',1,2.49,'日用品'),
+_s(211,'2026-02-08','優格',2,3.99,'牛奶'),
+_s(212,'2026-02-08','牛奶',1,6.12,'牛奶'),
+_s(213,'2026-02-08','冷凍薯條',2,2.49,'零食'),
+_s(214,'2026-02-08','洋菇',1,0.88,'蔬菜'),
+_s(215,'2026-02-08','大水壺',1,6.00,'日用品'),
+_s(216,'2026-02-08','GST',1,0.42,'GST'),
+_s(217,'2026-02-08','PST',1,0.59,'PST'),
+_s(218,'2026-02-08','爆米花',1,2.97,'零食'),
+_s(219,'2026-02-08','蝴蝶鹹餅',1,4.99,'零食'),
+_s(220,'2026-02-08','奇多',2,4.00,'零食'),
+_s(221,'2026-02-08','大白菜',1,4.23,'蔬菜'),
+_s(222,'2026-02-08','GST',1,0.80,'GST'),
+_s(223,'2026-02-10','雞蛋',1,10.35,'雞蛋'),
+_s(224,'2026-02-11','咖啡濾紙',1,5.49,'日用品'),
+_s(225,'2026-02-11','樂事',3,2.47,'零食'),
+_s(226,'2026-02-11','可樂',2,1.25,'飲料'),
+_s(227,'2026-02-11','可樂瓶子有的沒的錢',1,0.34,'飲料'),
+_s(228,'2026-02-11','優格',4,3.99,'牛奶'),
+_s(229,'2026-02-11','吐司',1,2.50,'米/麵/泡麵/麵包'),
+_s(230,'2026-02-11','GST',1,0.78,'GST'),
+_s(231,'2026-02-11','PST',1,0.57,'PST'),
+_s(232,'2026-02-14','小火鍋',2,12.20,'外食'),
+_s(233,'2026-02-15','Gelato',1,10.58,'外食'),
+_s(234,'2026-02-15','A&W',1,16.99,'外食'),
+_s(235,'2026-02-15','電子菸',2,40.00,'日用品'),
+_s(236,'2026-02-15','義大利麵',1,2.99,'米/麵/泡麵/麵包'),
+_s(237,'2026-02-15','泡麵',2,4.48,'米/麵/泡麵/麵包'),
+_s(238,'2026-02-15','爆米花',1,4.29,'零食'),
+_s(239,'2026-02-15','泡麵',1,4.79,'米/麵/泡麵/麵包'),
+_s(240,'2026-02-15','馬鈴薯',2,1.09,'蔬菜'),
+_s(241,'2026-02-15','洋菇',2,0.61,'蔬菜'),
+_s(242,'2026-02-15','豬絞肉',1,5.78,'肉類'),
+_s(243,'2026-02-15','雞胸肉',1,15.00,'肉類'),
+_s(244,'2026-02-15','冷凍蝦子',1,10.99,'肉類'),
+_s(245,'2026-02-16','小火鍋',2,10.94,'外食'),
+_s(246,'2026-02-20','A&W',2,16.99,'外食'),
+_s(247,'2026-02-20','洋芋片',2,1.24,'零食'),
+_s(248,'2026-02-20','挖沙比',1,1.99,'日用品'),
+_s(249,'2026-02-20','咖哩塊',1,2.99,'日用品'),
+_s(250,'2026-02-20','洋菇',2,0.52,'蔬菜'),
+_s(251,'2026-02-20','吐司',1,1.99,'米/麵/泡麵/麵包'),
+_s(252,'2026-02-20','蕎麥麵',1,1.99,'米/麵/泡麵/麵包'),
+_s(253,'2026-02-20','GST',1,0.12,'GST'),
+_s(254,'2026-02-20','米',1,22.97,'米/麵/泡麵/麵包'),
+_s(255,'2026-02-20','豬肉水餃',2,4.66,'米/麵/泡麵/麵包'),
+_s(256,'2026-02-20','薯條',1,2.77,'零食'),
+_s(257,'2026-02-20','優格',2,3.67,'牛奶'),
+_s(258,'2026-02-20','培根',1,5.97,'肉類'),
+_s(259,'2026-02-20','快樂牛',1,3.67,'牛奶'),
+_s(260,'2026-02-20','冰淇淋',1,4.98,'零食'),
+_s(261,'2026-02-22','廁所衛生紙',1,11.97,'日用品'),
+_s(262,'2026-02-22','牛奶',1,5.85,'牛奶'),
+_s(263,'2026-02-22','Canada Dry',1,2.95,'飲料'),
+_s(264,'2026-02-22','爆米花',1,3.97,'零食'),
+_s(265,'2026-02-22','咖啡',1,9.97,'咖啡'),
+_s(266,'2026-02-22','濾心',1,9.97,'日用品'),
+_s(267,'2026-02-22','保鮮膜',1,4.98,'日用品'),
+_s(268,'2026-02-22','GST',1,1.49,'GST'),
+_s(269,'2026-02-22','PST',1,2.08,'PST'),
+_s(270,'2026-02-22','義大利肉醬',1,3.00,'日用品'),
+_s(271,'2026-02-22','NN洋芋片',2,1.24,'零食'),
+_s(272,'2026-02-22','GST',1,0.12,'GST'),
+_s(273,'2026-02-22','雞蛋麵',1,3.29,'米/麵/泡麵/麵包'),
+_s(274,'2026-02-22','雞粉',1,4.99,'日用品'),
+_s(275,'2026-02-22','老乾媽',1,2.99,'日用品'),
+_s(276,'2026-02-22','杏鮑菇',2,0.99,'蔬菜'),
+_s(277,'2026-02-22','鮮蝦雲吞',2,6.50,'米/麵/泡麵/麵包'),
+_s(278,'2026-02-22','蕎麥麵汁',1,4.99,'日用品'),
+_s(279,'2026-02-22','菠蘿麵包',1,2.25,'米/麵/泡麵/麵包'),
+_s(280,'2026-02-22','芋頭麵包',1,2.75,'米/麵/泡麵/麵包'),
+_s(281,'2026-02-22','牛油牌包',1,4.49,'米/麵/泡麵/麵包'),
+_s(282,'2026-02-22','GST',1,0.25,'GST'),
+_s(283,'2026-02-27','大白菜',1,2.30,'蔬菜'),
+_s(284,'2026-02-27','雞蛋',1,10.18,'雞蛋'),
+_s(285,'2026-02-27','冰淇淋',2,4.94,'零食'),
+_s(286,'2026-02-27','優格',2,3.67,'零食'),
+_s(287,'2026-02-27','可樂',1,2.95,'飲料'),
+_s(288,'2026-02-27','芝麻葉',1,4.97,'蔬菜'),
+_s(289,'2026-02-27','泡麵',1,4.48,'米/麵/泡麵/麵包'),
+_s(290,'2026-02-27','餅乾',2,1.43,'零食'),
+_s(291,'2026-02-27','GST',1,0.29,'GST'),
+_s(292,'2026-02-27','PST',1,0.20,'PST'),
+_s(293,'2026-02-27','A&W',2,14.37,'外食'),
+_s(294,'2026-02-28','巧克力',2,1.25,'零食'),
+_s(295,'2026-02-28','餅乾',1,3.29,'零食'),
+_s(296,'2026-02-28','細麵',1,8.19,'米/麵/泡麵/麵包'),
+_s(297,'2026-02-28','泡麵',1,5.49,'米/麵/泡麵/麵包'),
+_s(298,'2026-02-28','蕎麥麵',1,1.99,'米/麵/泡麵/麵包'),
+_s(299,'2026-02-28','雞米花',1,6.99,'肉類'),
+_s(300,'2026-02-28','蟹肉棒',1,10.00,'蔬菜'),
+_s(301,'2026-02-28','豆腐',1,2.99,'蔬菜'),
+_s(302,'2026-02-28','牙膏',1,1.49,'日用品'),
+_s(303,'2026-02-28','撈匙',1,7.99,'日用品'),
+_s(304,'2026-02-28','GST',1,1.41,'GST'),
+_s(305,'2026-02-28','PST',1,1.57,'PST'),
+_s(306,'2026-02-28','麻婆豆腐醬',1,4.99,'日用品'),
+_s(307,'2026-02-28','甜麵醬',1,4.29,'日用品'),
+_s(308,'2026-02-28','雲吞',2,7.99,'蔬菜'),
+_s(309,'2026-02-28','螺獅粉',2,5.49,'米/麵/泡麵/麵包'),
+/* ── 2026-02 住宅/個人 ── */
+_k(310,'2026-02-01','凱凱房租',1,1376.00,'房租'),
+_hk(311,'2026-02-01','阿涵房租',1,1300.00,'房租'),
+_s(312,'2026-02-01','電話',1,28.02,'住宅'),
+_s(313,'2026-02-01','水費和汙水處理費',1,9.19,'住宅'),
+_s(314,'2026-02-01','帳目調整(月份vs細項差額)',1,-55.80,'外食'),
+_k(316,'2026-02-01','贍養費+Fumi生日',1,2448.82,'個人消費'),
+_k(317,'2026-02-01','染髮劑',1,12.99,'個人消費'),
+_h(318,'2026-02-01','粉刺夾',1,7.83,'個人消費'),
+_hk(492,'2026-02-01','2月結算調整',1,-38.43,'個人消費'),
+_h(493,'2026-02-01','2月結算調整(平衡)',1,38.43,'個人消費'),
+/* ── 2026-03 細項 ── */
+_s(319,'2026-03-02','止痛藥',1,9.54,'日用品'),
+_s(320,'2026-03-06','A&W',2,16.88,'外食'),
+_s(321,'2026-03-06','番茄醬',1,4.97,'日用品'),
+_s(322,'2026-03-06','哈根達斯冰棒',1,5.97,'零食'),
+_s(323,'2026-03-06','薯條',1,2.77,'零食'),
+_s(324,'2026-03-06','可樂',1,2.95,'飲料'),
+_s(325,'2026-03-06','爆米花',1,3.97,'零食'),
+_s(326,'2026-03-06','雲吞',1,6.97,'米/麵/泡麵/麵包'),
+_s(327,'2026-03-06','八道乾拌泡麵',2,3.47,'米/麵/泡麵/麵包'),
+_s(328,'2026-03-06','馬鈴薯泡麵',1,5.97,'米/麵/泡麵/麵包'),
+_s(329,'2026-03-06','培根',1,5.97,'肉類'),
+_s(330,'2026-03-06','餅乾',2,1.43,'零食'),
+_s(331,'2026-03-06','GST',1,0.58,'GST'),
+_s(332,'2026-03-06','PST',1,0.20,'PST'),
+_s(333,'2026-03-07','咖啡',2,8.49,'咖啡'),
+_s(334,'2026-03-07','咖啡濾紙',1,5.49,'日用品'),
+_s(335,'2026-03-07','檸檬餅乾',1,2.47,'零食'),
+_s(336,'2026-03-07','奇多',1,2.50,'零食'),
+_s(337,'2026-03-07','樂事',1,3.47,'零食'),
+_s(338,'2026-03-07','玉米罐頭',3,1.50,'蔬菜'),
+_s(339,'2026-03-07','草莓優酪乳',1,4.29,'牛奶'),
+_s(340,'2026-03-07','哈根達斯冰棒',1,4.94,'零食'),
+_s(341,'2026-03-07','洋菇',3,0.53,'蔬菜'),
+_s(342,'2026-03-07','牛排',2,8.99,'肉類'),
+_s(343,'2026-03-07','吐司',1,2.50,'米/麵/泡麵/麵包'),
+_s(344,'2026-03-07','GST',1,0.82,'GST'),
+_s(345,'2026-03-07','PST',1,0.38,'PST'),
+_s(346,'2026-03-12','Tim Houtons',2,4.82,'外食'),
+_s(347,'2026-03-13','蛋',1,10.18,'雞蛋'),
+_s(348,'2026-03-13','冰',1,8.47,'零食'),
+_s(349,'2026-03-13','優格',2,3.47,'牛奶'),
+_s(350,'2026-03-13','牛奶',1,6.60,'牛奶'),
+_s(351,'2026-03-13','canada dry',1,2.95,'飲料'),
+_s(352,'2026-03-13','巧克力醬',1,6.74,'日用品'),
+_s(353,'2026-03-13','薯條',1,2.77,'零食'),
+_s(354,'2026-03-13','餅乾',2,1.43,'零食'),
+_s(355,'2026-03-13','奇多',2,3.97,'零食'),
+_s(356,'2026-03-13','GST',1,0.68,'GST'),
+_s(357,'2026-03-13','PST',1,0.20,'PST'),
+_s(358,'2026-03-13','A&W',2,16.99,'外食'),
+_s(359,'2026-03-14','馬鈴薯泡麵',1,5.99,'米/麵/泡麵/麵包'),
+_s(360,'2026-03-14','繽紛樂巧克力',1,5.99,'零食'),
+_s(361,'2026-03-14','馬鈴薯',2,1.57,'蔬菜'),
+_s(362,'2026-03-14','大白菜',1,4.76,'蔬菜'),
+_s(363,'2026-03-14','洋菇',3,0.42,'蔬菜'),
+_s(364,'2026-03-14','冷凍雞塊',1,5.96,'零食'),
+_s(365,'2026-03-14','蟹肉棒',1,10.00,'蔬菜'),
+_s(366,'2026-03-14','洗髮精',1,10.99,'日用品'),
+_s(367,'2026-03-14','沐浴球',1,2.00,'日用品'),
+_s(368,'2026-03-14','GST',1,0.95,'GST'),
+_s(369,'2026-03-14','PST',1,0.91,'PST'),
+_s(370,'2026-03-14','辛拉麵',1,10.99,'米/麵/泡麵/麵包'),
+_s(371,'2026-03-14','樂事',2,3.47,'零食'),
+_s(372,'2026-03-14','巧克力',2,2.50,'零食'),
+_s(373,'2026-03-14','GST',1,0.60,'GST'),
+_s(374,'2026-03-14','老乾媽',1,4.59,'日用品'),
+_s(375,'2026-03-17','麵筋',1,6.29,'日用品'),
+_s(376,'2026-03-19','pizza pizza',1,23.09,'外食'),
+_s(377,'2026-03-19','雞蛋',1,10.35,'雞蛋'),
+_s(378,'2026-03-19','電子菸',2,62.50,'日用品'),
+_s(379,'2026-03-19','大麻',2,20.15,'日用品'),
+_s(380,'2026-03-20','可樂',1,2.95,'飲料'),
+_s(381,'2026-03-20','雞米花',2,5.96,'零食'),
+_s(382,'2026-03-20','培根',1,5.97,'肉類'),
+_s(383,'2026-03-20','水餃',1,4.47,'米/麵/泡麵/麵包'),
+_s(384,'2026-03-20','抓餅',1,4.47,'米/麵/泡麵/麵包'),
+_s(385,'2026-03-20','餅乾',1,2.97,'零食'),
+_s(386,'2026-03-20','GST',1,0.29,'GST'),
+_s(387,'2026-03-20','PST',1,0.20,'PST'),
+_s(388,'2026-03-20','A&W',2,17.09,'外食'),
+_s(389,'2026-03-21','蠟燭',1,4.00,'日用品'),
+_s(390,'2026-03-21','打火機',1,1.50,'日用品'),
+_s(391,'2026-03-21','籃子',1,3.50,'日用品'),
+_s(392,'2026-03-21','GST',1,0.45,'GST'),
+_s(393,'2026-03-21','PST',1,0.63,'PST'),
+_s(394,'2026-03-21','茼蒿',1,4.46,'蔬菜'),
+_s(395,'2026-03-21','咖哩',1,4.20,'日用品'),
+_s(396,'2026-03-21','辛拉麵',1,5.29,'米/麵/泡麵/麵包'),
+_s(397,'2026-03-21','馬鈴薯麵',1,5.99,'米/麵/泡麵/麵包'),
+_s(398,'2026-03-21','八道辣拌麵',1,4.99,'米/麵/泡麵/麵包'),
+_s(399,'2026-03-21','樂事',1,3.47,'零食'),
+_s(400,'2026-03-21','peace tea',1,2.09,'飲料'),
+_s(401,'2026-03-21','蘋果汁',1,2.38,'飲料'),
+_s(402,'2026-03-21','GST',1,0.17,'GST'),
+_s(403,'2026-03-21','酸菜魚',2,28.32,'外食'),
+_s(404,'2026-03-27','雞蛋',1,10.18,'雞蛋'),
+_s(405,'2026-03-27','餅乾',4,3.21,'零食'),
+_s(406,'2026-03-27','Canada dry',1,2.65,'飲料'),
+_s(407,'2026-03-27','抓餅',1,4.47,'米/麵/泡麵/麵包'),
+_s(408,'2026-03-27','豬肉',1,7.58,'肉類'),
+_s(409,'2026-03-27','味噌',1,5.87,'日用品'),
+_s(410,'2026-03-27','培根',1,5.97,'肉類'),
+_s(411,'2026-03-27','馬鈴薯麵',1,5.97,'米/麵/泡麵/麵包'),
+_s(412,'2026-03-27','GST',1,0.77,'GST'),
+_s(413,'2026-03-27','PST',1,0.18,'PST'),
+_s(414,'2026-03-27','A&W',2,16.15,'外食'),
+_s(415,'2026-03-28','麵包粉',1,3.99,'日用品'),
+_s(416,'2026-03-28','太白粉',1,1.79,'日用品'),
+_s(417,'2026-03-28','餛飩',1,8.49,'米/麵/泡麵/麵包'),
+_s(418,'2026-03-28','白胡椒粉',1,3.49,'日用品'),
+_s(419,'2026-03-28','泡麵',1,4.98,'米/麵/泡麵/麵包'),
+_s(420,'2026-03-28','餅乾',2,3.11,'零食'),
+_s(421,'2026-03-28','吐司',1,2.49,'米/麵/泡麵/麵包'),
+_s(422,'2026-03-28','GST',1,0.31,'GST'),
+_s(423,'2026-03-28','柔軟精',1,13.99,'日用品'),
+_s(424,'2026-03-28','辛拉麵',1,4.98,'米/麵/泡麵/麵包'),
+_s(425,'2026-03-28','洗衣精',1,8.99,'日用品'),
+_s(426,'2026-03-28','牛奶',1,6.12,'牛奶'),
+_s(427,'2026-03-28','豬肉水餃',2,5.99,'米/麵/泡麵/麵包'),
+_s(428,'2026-03-28','蟹肉棒',1,10.00,'蔬菜'),
+_s(429,'2026-03-28','牙線',1,4.50,'日用品'),
+_s(430,'2026-03-28','GST',1,1.37,'GST'),
+_s(431,'2026-03-28','PST',1,1.92,'PST'),
+_s(432,'2026-03-30','樂事',1,2.75,'零食'),
+_s(433,'2026-03-30','大白菜',1,4.63,'蔬菜'),
+_s(434,'2026-03-30','GST',1,0.14,'GST'),
+/* ── 2026-03 住宅/個人 ── */
+_k(435,'2026-03-01','凱凱房租',1,1199.25,'房租'),
+_hk(436,'2026-03-01','阿涵房租',1,1199.25,'房租'),
+_s(437,'2026-03-01','電費',1,83.94,'住宅'),
+_s(438,'2026-03-01','水費和汙水處理費',1,9.08,'住宅'),
+_s(439,'2026-03-01','帳目調整(月份vs細項差額)',1,-124.71,'外食'),
+_k(441,'2026-03-01','贍養費',1,2021.00,'個人消費'),
+_k(442,'2026-03-01','Claude',1,159.79,'個人消費'),
+_h(443,'2026-03-01','coco飲料',1,15.33,'個人消費'),
+_h(444,'2026-03-01','刺繡DIY',1,21.27,'個人消費'),
+_h(445,'2026-03-01','針+線',1,25.73,'個人消費'),
+/* ── 2026-04 住宅 ── */
+_k(446,'2026-04-01','凱凱房租',1,1376.00,'房租'),
+_hk(447,'2026-04-01','阿涵房租',1,1300.00,'房租'),
+];
+let incomes = JSON.parse(localStorage.getItem('hh_inc_2026')||'null') || [
+  {id:1,date:'2026-01-01',source:'期初餘額',amount:9068.41,who:'kai'},
+  {id:2,date:'2026-01-01',source:'薪水',amount:7719.14,who:'kai'},
+  {id:3,date:'2026-01-01',source:'薪水',amount:7286.27,who:'han'},
+  {id:4,date:'2026-02-01',source:'薪水',amount:5752.48,who:'kai'},
+  {id:5,date:'2026-02-01',source:'薪水',amount:6990.17,who:'han'},
+  {id:6,date:'2026-03-01',source:'薪水',amount:5660.04,who:'kai'},
+  {id:7,date:'2026-03-01',source:'薪水',amount:4835.24,who:'han'},
+];
+let nextExpId = expenses.length ? Math.max(...expenses.map(e=>e.id))+1 : 1;
+let nextIncId = incomes.length ? Math.max(...incomes.map(i=>i.id))+1 : 1;
+
+function saveExp(){ localStorage.setItem('hh_exp_2026', JSON.stringify(expenses)); }
+function saveInc(){ localStorage.setItem('hh_inc_2026', JSON.stringify(incomes)); }
+function fmtCad(n){ return 'CAD '+(+n).toFixed(2); }
+function sub(e){ return e.qty * e.price; }
+function total(e){ return sub(e) + (e.gst||0) + (e.pst||0); }
+
+function monthExp(mm){ return expenses.filter(e=>e.date.startsWith('2026-'+mm)); }
+function monthInc(mm){ return incomes.filter(i=>i.date.startsWith('2026-'+mm)); }
+
+/* ── Formula eval ── */
+function evalFormula(expr){
+  const s = expr.trim();
+  if(!s) return null;
+  if(!/^[\d\s\+\-\*\/\.\(\)]+$/.test(s)) return null;
+  try{ const v = Function('"use strict";return ('+s+')')(); return isFinite(v)?+v.toFixed(4):null; }
+  catch(e){ return null; }
+}
+
+/* ── Settle calc ── */
+function calcSettle(exps){
+  let kaiBalance = 0;
+  exps.forEach(e=>{
+    const t = total(e);
+    if(e.who==='kai'){
+      if(e.paidBy==='kai') return;
+      kaiBalance += t;
+    } else if(e.who==='han'){
+      if(e.paidBy==='han') return;
+      kaiBalance -= t;
+    } else {
+      const half = t/2;
+      if(e.paidBy==='kai') kaiBalance -= half;
+      else kaiBalance += half;
+    }
+  });
+  return kaiBalance;
+}
+
+/* ── Personal totals ── */
+function personalTotals(exps){
+  let kaiSpend=0, hanSpend=0, kaiPaid=0, hanPaid=0;
+  exps.forEach(e=>{
+    const t=total(e);
+    if(e.who==='kai') kaiSpend+=t;
+    else if(e.who==='han') hanSpend+=t;
+    else { kaiSpend+=t/2; hanSpend+=t/2; }
+    if(e.paidBy==='kai') kaiPaid+=t;
+    else hanPaid+=t;
+  });
+  return {kaiSpend,hanSpend,kaiPaid,hanPaid};
+}
+
+/* ─────────── Build Month Panel HTML ─────────── */
+function buildMonthPanel(mm){
+  const name=MN[parseInt(mm)-1];
+  return `
+<div class="page-header">
+  <div><div class="page-title">${name} 記帳</div><div class="page-sub" id="sub-${mm}">—</div></div>
+  <button class="hdr-btn" onclick="exportMonthCSV('${mm}')">📥 匯出 ${name}</button>
+</div>
+<div class="page-body">
+
+  <div class="grid4" id="sum-${mm}"></div>
+  <div id="settle-${mm}" style="margin-bottom:1.5rem"></div>
+
+  <!-- Income -->
+  <div class="income-grid">
+    <div class="income-card kai-card">
+      <div class="income-title"><span class="avatar av-kai" style="width:22px;height:22px;font-size:10px">凱</span> 凱的收入</div>
+      <div id="inc-kai-list-${mm}"></div>
+      <div class="income-total"><span>本月合計</span><span class="mono" id="inc-kai-total-${mm}" style="color:var(--kai)">CAD 0.00</span></div>
+    </div>
+    <div class="income-card han-card">
+      <div class="income-title"><span class="avatar av-han" style="width:22px;height:22px;font-size:10px">涵</span> 涵的收入</div>
+      <div id="inc-han-list-${mm}"></div>
+      <div class="income-total"><span>本月合計</span><span class="mono" id="inc-han-total-${mm}" style="color:var(--han)">CAD 0.00</span></div>
+    </div>
+  </div>
+
+  <!-- Add income -->
+  <div class="form-section" style="margin-bottom:1.5rem">
+    <div class="fsec-title">＋ 新增收入</div>
+    <div class="frow fr4">
+      <div class="fgroup"><label class="fl">日期</label><input type="date" id="ifd-${mm}" value="2026-${mm}-01"></div>
+      <div class="fgroup"><label class="fl">來源（薪水/獎金等）</label><input type="text" id="ifn-${mm}" placeholder="例：薪水"></div>
+      <div class="fgroup">
+        <label class="fl">金額（支援公式）</label>
+        <input type="text" id="ifa-${mm}" class="formula" placeholder="例：3500 或 7000/2">
+        <div class="formula-hint" id="ifh-${mm}"></div>
+      </div>
+      <div class="fgroup"><label class="fl">誰的收入</label>
+        <div class="who-toggle">
+          <button class="who-btn sel-kai" id="iwho-kai-${mm}" onclick="setIncWho('${mm}','kai')">凱</button>
+          <button class="who-btn" id="iwho-han-${mm}" onclick="setIncWho('${mm}','han')">涵</button>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="addIncome('${mm}')">新增收入</button>
+  </div>
+
+  <!-- Add expense form -->
+  <div class="form-section">
+    <div class="fsec-title">＋ 新增支出</div>
+    <div class="frow fr5">
+      <div class="fgroup"><label class="fl">日期</label><input type="date" id="fd-${mm}" value="2026-${mm}-01"></div>
+      <div class="fgroup"><label class="fl">項目名稱</label><input type="text" id="fn-${mm}" placeholder="例：雞蛋"></div>
+      <div class="fgroup"><label class="fl">數量</label><input type="number" id="fq-${mm}" value="1" min="1" step="1"></div>
+      <div class="fgroup">
+        <label class="fl">金額（支援公式）</label>
+        <input type="text" id="fp-${mm}" class="formula" placeholder="例：16.15 或 32.30/2">
+        <div class="formula-hint" id="fph-${mm}"></div>
+      </div>
+      <div class="fgroup"><label class="fl">分類</label><select id="fc-${mm}" onchange="handleCatChange(this)"></select></div>
+    </div>
+
+    <div class="form-divider">誰的費用 ＆ 誰付款</div>
+    <div class="frow fr2" style="margin-bottom:12px">
+      <div class="fgroup">
+        <label class="fl">這筆費用屬於</label>
+        <div class="who-toggle">
+          <button class="who-btn" id="fwho-kai-${mm}" onclick="setExpWho('${mm}','kai')">凱的</button>
+          <button class="who-btn" id="fwho-han-${mm}" onclick="setExpWho('${mm}','han')">涵的</button>
+          <button class="who-btn sel-shared" id="fwho-shared-${mm}" onclick="setExpWho('${mm}','shared')">共同（各一半）</button>
+        </div>
+      </div>
+      <div class="fgroup">
+        <label class="fl">誰付的錢</label>
+        <div class="who-toggle">
+          <button class="who-btn sel-kai" id="fpaid-kai-${mm}" onclick="setExpPaid('${mm}','kai')">凱付</button>
+          <button class="who-btn" id="fpaid-han-${mm}" onclick="setExpPaid('${mm}','han')">涵付</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-divider">稅金（選填，直接從收據輸入）</div>
+    <div class="tax-row">
+      <div class="fgroup"><label class="fl">GST 金額 (CAD)</label><input type="text" id="fg-${mm}" class="formula" placeholder="0 或直接輸入"></div>
+      <div class="fgroup"><label class="fl">PST 金額 (CAD)</label><input type="text" id="fpst-${mm}" class="formula" placeholder="0 或直接輸入"></div>
+    </div>
+
+    <div class="frow fr2">
+      <div class="fgroup"><label class="fl">備註（可選）</label><input type="text" id="fo-${mm}" placeholder="例：T&T 購入"></div>
+      <div id="calc-prev-${mm}" style="display:none" class="calc-preview fgroup"></div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-primary" onclick="addExpense('${mm}')">新增支出</button>
+      <button class="btn btn-secondary" onclick="clearExpForm('${mm}')">清除</button>
+    </div>
+  </div>
+
+  <!-- Records table / Calendar -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">${name} 支出明細</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input class="search-input" type="text" placeholder="🔍 搜尋品項..." oninput="filterTable('${mm}',this.value)" id="search-${mm}">
+        <div class="view-toggle">
+          <button class="hdr-btn active" id="btn-list-${mm}" onclick="switchView('${mm}','list')">☰ 列表</button>
+          <button class="hdr-btn" id="btn-cal-${mm}" onclick="switchView('${mm}','cal')">📅 日曆</button>
+        </div>
+      </div>
+    </div>
+    <div id="list-view-${mm}">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>日期</th><th>項目</th><th>分類</th><th>屬於</th><th>付款</th><th>數量</th><th>金額</th><th>GST</th><th>PST</th><th>小計</th><th></th></tr></thead>
+          <tbody id="tbl-${mm}"></tbody>
+        </table>
+        <div id="empty-${mm}" class="empty-state">尚無記錄，請在上方新增</div>
+      </div>
+    </div>
+    <div id="cal-view-${mm}" style="display:none">
+      <div class="cal-grid" id="cal-grid-${mm}"></div>
+      <div id="cal-popup-${mm}"></div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid2">
+    <div class="section">
+      <div class="section-header"><div class="section-title">類別分布</div></div>
+      <div class="section-body"><div class="bar-list" id="bar-${mm}"></div></div>
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="section-title">類別金額</div></div>
+      <div class="section-body"><div class="cat-2col" id="cats-${mm}"></div></div>
+    </div>
+  </div>
+</div>`;
+}
+
+/* ──────── Cumulative balance up to month mm ──────── */
+function cumulativeTotals(mm){
+  const months=['01','02','03','04','05','06','07','08','09','10','11','12'];
+  const idx=months.indexOf(mm);
+  let kaiInc=0,hanInc=0,kaiSpend=0,hanSpend=0,kaiExtraDeduct=0;
+  months.slice(0,idx+1).forEach(m=>{
+    const exps=monthExp(m),incs=monthInc(m);
+    const pt=personalTotals(exps);
+    kaiInc+=incs.filter(i=>i.who==='kai').reduce((s,i)=>s+i.amount,0);
+    hanInc+=incs.filter(i=>i.who==='han').reduce((s,i)=>s+i.amount,0);
+    kaiSpend+=pt.kaiSpend; hanSpend+=pt.hanSpend;
+    // Match Excel formula: Feb+ subtracts kai personal expenses an extra time
+    if(m>='02'){
+      kaiExtraDeduct+=exps.filter(e=>e.who==='kai'&&e.cat!=='房租').reduce((s,e)=>s+total(e),0);
+    }
+  });
+  return {kaiInc,hanInc,kaiSpend,hanSpend,kaiExtraDeduct};
+}
+
+/* ──────── Render Month ──────── */
+function renderMonth(mm){
+  const exps=monthExp(mm), incs=monthInc(mm);
+  const {kaiSpend:kaiSpendM,hanSpend:hanSpendM}=personalTotals(exps);
+  const settle=calcSettle(exps);
+  const kaiIncM=incs.filter(i=>i.who==='kai').reduce((s,i)=>s+i.amount,0);
+  const hanIncM=incs.filter(i=>i.who==='han').reduce((s,i)=>s+i.amount,0);
+  const kaiExtraM=mm>='02'?exps.filter(e=>e.who==='kai'&&e.cat!=='房租').reduce((s,e)=>s+total(e),0):0;
+  const kaiBalanceM=kaiIncM-kaiSpendM-kaiExtraM, hanBalanceM=hanIncM-hanSpendM;
+
+  const {kaiInc,hanInc,kaiSpend,hanSpend,kaiExtraDeduct}=cumulativeTotals(mm);
+  const kaiBalance=kaiInc-kaiSpend-kaiExtraDeduct, hanBalance=hanInc-hanSpend;
+
+  const subEl=document.getElementById('sub-'+mm);
+  if(subEl) subEl.textContent=`${exps.length} 筆支出 · 凱累計資產 ${fmtCad(kaiBalance)} · 涵累計資產 ${fmtCad(hanBalance)}`;
+
+  document.getElementById('sum-'+mm).innerHTML=`
+    <div class="card kai-card"><div class="card-label">凱 本月收入</div><div class="card-value kai">${fmtCad(kaiIncM)}</div><div class="card-sub">本月支出 ${fmtCad(kaiSpendM)}</div></div>
+    <div class="card kai-card"><div class="card-label">凱 累計資產</div><div class="card-value ${kaiBalance>=0?'green':'red'}">${fmtCad(kaiBalance)}</div><div class="card-sub">本月結餘 ${fmtCad(kaiBalanceM)}</div></div>
+    <div class="card han-card"><div class="card-label">涵 本月收入</div><div class="card-value han">${fmtCad(hanIncM)}</div><div class="card-sub">本月支出 ${fmtCad(hanSpendM)}</div></div>
+    <div class="card han-card"><div class="card-label">涵 累計資產</div><div class="card-value ${hanBalance>=0?'green':'red'}">${fmtCad(hanBalance)}</div><div class="card-sub">本月結餘 ${fmtCad(hanBalanceM)}</div></div>
+  `;
+
+  const settleEl=document.getElementById('settle-'+mm);
+  const isSettled=localStorage.getItem('hh_settled_'+mm)==='1';
+  const settledBtn=`<button class="settled-btn${isSettled?' settled':''}" onclick="toggleSettled('${mm}')">${isSettled?'✅ 已結算':'○ 標記已結算'}</button>`;
+  if(Math.abs(settle)<0.01){
+    settleEl.innerHTML=`<div class="settle-box"><div class="settle-icon">✅</div><div><div class="settle-text">本月帳目已平！兩人不需要互轉錢。</div></div></div>`;
+  } else if(settle>0){
+    settleEl.innerHTML=`<div class="settle-box"><div class="settle-icon">💸</div><div style="flex:1"><div class="settle-text">本月結算：<b>凱</b> 需轉給 <b>涵</b></div><div class="settle-amount">${fmtCad(settle)}</div></div>${settledBtn}</div>`;
+  } else {
+    settleEl.innerHTML=`<div class="settle-box"><div class="settle-icon">💸</div><div style="flex:1"><div class="settle-text">本月結算：<b>涵</b> 需轉給 <b>凱</b></div><div class="settle-amount">${fmtCad(-settle)}</div></div>${settledBtn}</div>`;
+  }
+
+  ['kai','han'].forEach(who=>{
+    const list=incs.filter(i=>i.who===who);
+    const tot=list.reduce((s,i)=>s+i.amount,0);
+    document.getElementById(`inc-${who}-list-${mm}`).innerHTML=list.length
+      ? list.map(i=>`<div class="income-item">
+          <span>${i.date.slice(5)} ${i.source}</span>
+          <div class="inc-actions">
+            <span class="mono">${fmtCad(i.amount)}</span>
+            <button class="inc-btn edit" onclick="openEditIncome(${i.id},'${mm}')">編輯</button>
+            <button class="inc-btn" onclick="deleteIncome(${i.id},'${mm}')">刪除</button>
+          </div>
+        </div>`).join('')
+      : `<div style="color:var(--text3);font-size:12px;padding:8px 0">尚無收入記錄</div>`;
+    document.getElementById(`inc-${who}-total-${mm}`).textContent=fmtCad(tot);
+  });
+
+  const tbody=document.getElementById('tbl-'+mm);
+  const empty=document.getElementById('empty-'+mm);
+  const allTotal=exps.reduce((s,e)=>s+total(e),0);
+  const gstTotal=exps.reduce((s,e)=>s+(e.gst||0),0);
+  const pstTotal=exps.reduce((s,e)=>s+(e.pst||0),0);
+  if(!exps.length){tbody.innerHTML='';empty.style.display='block';}
+  else{
+    empty.style.display='none';
+    tbody.innerHTML=[...exps].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(e=>{
+      const whoLabel=e.who==='kai'?`<span class="who-chip who-kai">凱的</span>`
+        :e.who==='han'?`<span class="who-chip who-han">涵的</span>`
+        :`<span class="who-chip who-shared">共同</span>`;
+      const paidLabel=e.paidBy==='kai'?`<span class="who-chip who-kai">凱付</span>`:`<span class="who-chip who-han">涵付</span>`;
+      return `<tr>
+        <td>${e.date}</td>
+        <td style="font-weight:500">${e.name}${e.note?'<br><span style="font-size:11px;color:var(--text3)">'+e.note+'</span>':''}</td>
+        <td><span class="badge ${BADGE[e.cat]||'b-daily'}">${e.cat}</span></td>
+        <td>${whoLabel}</td><td>${paidLabel}</td>
+        <td>${e.qty}</td>
+        <td class="mono">${fmtCad(sub(e))}</td>
+        <td class="mono" style="color:var(--text3)">${e.gst>0?fmtCad(e.gst):'—'}</td>
+        <td class="mono" style="color:var(--text3)">${e.pst>0?fmtCad(e.pst):'—'}</td>
+        <td class="mono" style="font-weight:500">${fmtCad(total(e))}</td>
+        <td style="white-space:nowrap">
+          <button class="btn-sm edit-btn" onclick="openEditExpense(${e.id},'${mm}')">編輯</button>
+          <button class="btn-sm" onclick="deleteExpense(${e.id},'${mm}')">刪除</button>
+        </td>
+      </tr>`;
+    }).join('')+`
+      <tr class="tbl-sub"><td colspan="9" style="text-align:right;padding-right:14px">GST 合計</td><td class="mono">${fmtCad(gstTotal)}</td><td></td></tr>
+      <tr class="tbl-sub"><td colspan="9" style="text-align:right;padding-right:14px">PST 合計</td><td class="mono">${fmtCad(pstTotal)}</td><td></td></tr>
+      <tr class="tbl-sub"><td colspan="9" style="text-align:right;padding-right:14px">凱的費用</td><td class="mono" style="color:var(--kai)">${fmtCad(kaiSpend)}</td><td></td></tr>
+      <tr class="tbl-sub"><td colspan="9" style="text-align:right;padding-right:14px">涵的費用</td><td class="mono" style="color:var(--han)">${fmtCad(hanSpend)}</td><td></td></tr>
+      <tr class="tbl-grand"><td colspan="9" style="text-align:right;padding-right:14px">月支出合計</td><td class="mono">${fmtCad(allTotal)}</td><td></td></tr>`;
+  }
+
+  const bycat={};
+  exps.forEach(e=>{bycat[e.cat]=(bycat[e.cat]||0)+total(e);});
+  const sc=Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
+  const mx=sc.length?sc[0][1]:1;
+  document.getElementById('bar-'+mm).innerHTML=sc.map(([c,v])=>`
+    <div class="bar-row"><div class="bar-cat">${c}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${(v/mx*100).toFixed(1)}%;background:${BAR_COLOR[c]||'#888'}"></div></div>
+    <div class="bar-val">${fmtCad(v)}</div></div>`).join('')||'<div class="empty-state" style="padding:1rem">尚無資料</div>';
+  document.getElementById('cats-'+mm).innerHTML=sc.map(([c,v])=>`
+    <div class="cat-item"><span style="color:var(--text2)">${c}</span><span class="cat-amt">${fmtCad(v)}</span></div>`).join('');
+
+  const nav=document.getElementById('nav-m'+mm);
+  if(nav){nav.classList.toggle('has-data',exps.length>0||incs.length>0);document.getElementById('cnt-m'+mm).textContent=exps.length?exps.length+'筆':'';}
+}
+
+/* ──────── Search ──────── */
+function filterTable(mm, q){
+  const tbody=document.getElementById('tbl-'+mm);
+  if(!tbody)return;
+  const rows=tbody.querySelectorAll('tr:not(.tbl-sub):not(.tbl-grand)');
+  const kw=q.trim().toLowerCase();
+  rows.forEach(tr=>{tr.style.display=(!kw||tr.textContent.toLowerCase().includes(kw))?'':'none';});
+}
+
+/* ──────── Settlement Mark ──────── */
+function toggleSettled(mm){
+  const cur=localStorage.getItem('hh_settled_'+mm)==='1';
+  localStorage.setItem('hh_settled_'+mm, cur?'0':'1');
+  renderMonth(mm);
+  showToast(cur?'已取消結算標記':'✅ 已標記為結算完成');
+}
+
+/* ──────── Calendar View ──────── */
+const _calOpenDay={};
+
+function switchView(mm, mode){
+  const listEl=document.getElementById('list-view-'+mm);
+  const calEl=document.getElementById('cal-view-'+mm);
+  const btnList=document.getElementById('btn-list-'+mm);
+  const btnCal=document.getElementById('btn-cal-'+mm);
+  if(mode==='cal'){
+    listEl.style.display='none';calEl.style.display='block';
+    btnList.classList.remove('active');btnCal.classList.add('active');
+    renderCalendar(mm);
+  } else {
+    listEl.style.display='block';calEl.style.display='none';
+    btnList.classList.add('active');btnCal.classList.remove('active');
+  }
+}
+
+function renderCalendar(mm){
+  const exps=monthExp(mm);
+  const year=2026, month=parseInt(mm,10)-1;
+  const today=new Date();
+
+  // Group expenses by day
+  const byDay={};
+  exps.forEach(e=>{
+    const d=e.date.slice(8); // dd
+    if(!byDay[d])byDay[d]=[];
+    byDay[d].push(e);
+  });
+
+  const firstDay=new Date(year,month,1).getDay(); // 0=Sun
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  // Start week on Monday: shift so Mon=0
+  const startOffset=(firstDay+6)%7;
+
+  const weekdays=['一','二','三','四','五','六','日'];
+  let html=weekdays.map(d=>`<div class="cal-weekday">${d}</div>`).join('');
+
+  // Empty cells before first day
+  for(let i=0;i<startOffset;i++) html+=`<div class="cal-cell empty"></div>`;
+
+  for(let d=1;d<=daysInMonth;d++){
+    const dd=String(d).padStart(2,'0');
+    const items=byDay[dd]||[];
+    const dayTotal=items.reduce((s,e)=>s+total(e),0);
+    const isToday=today.getFullYear()===year&&today.getMonth()===month&&today.getDate()===d;
+    const hasExp=items.length>0;
+    const cellClass=`cal-cell${isToday?' today':''}${hasExp?' has-exp':''}`;
+    const dots=items.slice(0,3).map(e=>`<div class="cal-day-dot">${e.name}</div>`).join('');
+    html+=`<div class="${cellClass}" onclick="${hasExp?`toggleCalDay('${mm}','${dd}',this)`:''}" data-day="${dd}">
+      <div class="cal-day-num">${d}</div>
+      ${hasExp?`<div class="cal-day-total">${fmtCad(dayTotal)}</div><div class="cal-day-items">${dots}</div>`:''}
+    </div>`;
+  }
+
+  document.getElementById('cal-grid-'+mm).innerHTML=html;
+  document.getElementById('cal-popup-'+mm).innerHTML='';
+  _calOpenDay[mm]=null;
+}
+
+function toggleCalDay(mm, dd, cell){
+  const popupEl=document.getElementById('cal-popup-'+mm);
+  if(_calOpenDay[mm]===dd){
+    popupEl.innerHTML='';
+    _calOpenDay[mm]=null;
+    return;
+  }
+  _calOpenDay[mm]=dd;
+  const exps=monthExp(mm).filter(e=>e.date.slice(8)===dd).sort((a,b)=>b.id-a.id);
+  const dayTotal=exps.reduce((s,e)=>s+total(e),0);
+  const rows=exps.map(e=>{
+    const whoLabel=e.who==='kai'?'凱':e.who==='han'?'涵':'共';
+    return `<div class="cal-popup-row">
+      <span class="cal-popup-name">${e.name}<span style="color:var(--text3);font-size:10px;margin-left:4px">[${whoLabel}]</span></span>
+      <span class="cal-popup-amt">${fmtCad(total(e))}</span>
+    </div>`;
+  }).join('');
+  popupEl.innerHTML=`<div class="cal-popup">
+    <div class="cal-popup-title">📅 ${parseInt(mm)}月${parseInt(dd)}日 · 合計 ${fmtCad(dayTotal)}</div>
+    ${rows}
+  </div>`;
+}
+
+/* ──────── Render Year ──────── */
+function renderYear(){
+  const allExps=expenses, allIncs=incomes;
+  const {kaiSpend,hanSpend}=personalTotals(allExps);
+  const kaiInc=allIncs.filter(i=>i.who==='kai').reduce((s,i)=>s+i.amount,0);
+  const hanInc=allIncs.filter(i=>i.who==='han').reduce((s,i)=>s+i.amount,0);
+  const settle=calcSettle(allExps);
+
+  document.getElementById('year-summary').innerHTML=`
+    <div class="card kai-card"><div class="card-label">凱 全年餘額</div><div class="card-value ${(kaiInc-kaiSpend)>=0?'green':'red'}">${fmtCad(kaiInc-kaiSpend)}</div><div class="card-sub">收入 ${fmtCad(kaiInc)} · 支出 ${fmtCad(kaiSpend)}</div></div>
+    <div class="card han-card"><div class="card-label">涵 全年餘額</div><div class="card-value ${(hanInc-hanSpend)>=0?'green':'red'}">${fmtCad(hanInc-hanSpend)}</div><div class="card-sub">收入 ${fmtCad(hanInc)} · 支出 ${fmtCad(hanSpend)}</div></div>
+    <div class="card"><div class="card-label">家庭總收入</div><div class="card-value green">${fmtCad(kaiInc+hanInc)}</div><div class="card-sub">凱+涵合計</div></div>
+    <div class="card"><div class="card-label">家庭總支出</div><div class="card-value red">${fmtCad(allExps.reduce((s,e)=>s+total(e),0))}</div><div class="card-sub">所有費用合計</div></div>
+  `;
+
+  const settleEl=document.getElementById('year-settle');
+  if(Math.abs(settle)<0.01) settleEl.innerHTML=`<div class="settle-box" style="margin-bottom:1.5rem"><div class="settle-icon">✅</div><div class="settle-text">全年帳目已平！</div></div>`;
+  else if(settle>0) settleEl.innerHTML=`<div class="settle-box" style="margin-bottom:1.5rem"><div class="settle-icon">💸</div><div><div class="settle-text">全年累計：<b>凱</b> 尚欠 <b>涵</b></div><div class="settle-amount">${fmtCad(settle)}</div></div></div>`;
+  else settleEl.innerHTML=`<div class="settle-box" style="margin-bottom:1.5rem"><div class="settle-icon">💸</div><div><div class="settle-text">全年累計：<b>涵</b> 尚欠 <b>凱</b></div><div class="settle-amount">${fmtCad(-settle)}</div></div></div>`;
+
+  const mt=MONTHS.map(mm=>{
+    const e=monthExp(mm),i=monthInc(mm);
+    const t=e.reduce((s,x)=>s+total(x),0);
+    return{mm,exps:e,t};
+  });
+  const maxT=Math.max(...mt.map(m=>m.t),1);
+  document.getElementById('year-months').innerHTML=mt.map(({mm,exps,t})=>`
+    <div class="month-card" onclick="showPanelByMonth('${mm}')">
+      <div class="month-card-name">${MN[parseInt(mm)-1]}</div>
+      <div class="month-card-total">${t>0?fmtCad(t):'—'}</div>
+      <div class="month-card-sub">${exps.length?exps.length+' 筆':'尚無記錄'}</div>
+      <div class="month-card-bar"><div class="month-card-bar-fill" style="width:${(t/maxT*100).toFixed(1)}%"></div></div>
+    </div>`).join('');
+
+  const bycat={};
+  expenses.forEach(e=>{bycat[e.cat]=(bycat[e.cat]||0)+total(e);});
+  const sc=Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
+  const mx=sc.length?sc[0][1]:1;
+  document.getElementById('year-bar').innerHTML=sc.map(([c,v])=>`
+    <div class="bar-row"><div class="bar-cat">${c}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${(v/mx*100).toFixed(1)}%;background:${BAR_COLOR[c]||'#888'}"></div></div>
+    <div class="bar-val">${fmtCad(v)}</div></div>`).join('')||'<div class="empty-state">尚無資料</div>';
+  document.getElementById('year-cats').innerHTML=sc.map(([c,v])=>`
+    <div class="cat-item"><span style="color:var(--text2)">${c}</span><span class="cat-amt">${fmtCad(v)}</span></div>`).join('');
+}
+
+/* ──────── Who state ──────── */
+const expWhoState={}, expPaidState={}, incWhoState={};
+
+function setExpWho(mm,who){
+  expWhoState[mm]=who;
+  ['kai','han','shared'].forEach(w=>{
+    const btn=document.getElementById(`fwho-${w}-${mm}`);
+    if(!btn)return;
+    btn.className='who-btn'+(who===w?` sel-${w}`:'');
+  });
+}
+function setExpPaid(mm,who){
+  expPaidState[mm]=who;
+  ['kai','han'].forEach(w=>{
+    const btn=document.getElementById(`fpaid-${w}-${mm}`);
+    if(!btn)return;
+    btn.className='who-btn'+(who===w?` sel-${w}`:'');
+  });
+}
+function setIncWho(mm,who){
+  incWhoState[mm]=who;
+  ['kai','han'].forEach(w=>{
+    const btn=document.getElementById(`iwho-${w}-${mm}`);
+    if(!btn)return;
+    btn.className='who-btn'+(who===w?` sel-${w}`:'');
+  });
+}
+
+/* ──────── Add / Delete ──────── */
+function addExpense(mm){
+  const date=document.getElementById('fd-'+mm).value;
+  const name=document.getElementById('fn-'+mm).value.trim();
+  const qty=parseFloat(document.getElementById('fq-'+mm).value)||1;
+  const priceExpr=document.getElementById('fp-'+mm).value.trim();
+  const cat=document.getElementById('fc-'+mm).value;
+  const who=expWhoState[mm]||'shared';
+  const paidBy=expPaidState[mm]||'kai';
+  const gstExpr=document.getElementById('fg-'+mm).value.trim();
+  const pstExpr=document.getElementById('fpst-'+mm).value.trim();
+  const note=document.getElementById('fo-'+mm).value.trim();
+
+  if(!date||!name||!priceExpr){showToast('⚠ 請填寫日期、項目名稱和金額');return;}
+  if(!date.startsWith('2026-'+mm)){showToast('⚠ 日期不在本月範圍');return;}
+  const price=evalFormula(priceExpr);
+  if(price===null||price<=0){showToast('⚠ 金額格式錯誤');return;}
+  const gst=evalFormula(gstExpr)||0;
+  const pst=evalFormula(pstExpr)||0;
+
+  expenses.push({id:nextExpId++,date,name,qty,priceExpr,price,cat,who,paidBy,gst,pst,note});
+  saveExp();clearExpForm(mm);renderMonth(mm);renderYear();
+  showToast('✓ 已新增：'+name);
+}
+
+function addIncome(mm){
+  const date=document.getElementById('ifd-'+mm).value;
+  const source=document.getElementById('ifn-'+mm).value.trim();
+  const amtExpr=document.getElementById('ifa-'+mm).value.trim();
+  const who=incWhoState[mm]||'kai';
+  if(!date||!source||!amtExpr){showToast('⚠ 請填寫日期、來源和金額');return;}
+  const amount=evalFormula(amtExpr);
+  if(amount===null||amount<=0){showToast('⚠ 金額格式錯誤');return;}
+  incomes.push({id:nextIncId++,date,source,amount,who});
+  saveInc();
+  document.getElementById('ifn-'+mm).value='';
+  document.getElementById('ifa-'+mm).value='';
+  document.getElementById('ifh-'+mm).textContent='';
+  renderMonth(mm);renderYear();
+  showToast('✓ 已新增：'+source+' '+fmtCad(amount));
+}
+
+function deleteExpense(id,mm){
+  if(!confirm('確定刪除這筆支出？'))return;
+  expenses=expenses.filter(e=>e.id!==id);
+  saveExp();renderMonth(mm);renderYear();showToast('已刪除');
+}
+function deleteIncome(id,mm){
+  if(!confirm('確定刪除這筆收入？'))return;
+  incomes=incomes.filter(i=>i.id!==id);
+  saveInc();renderMonth(mm);renderYear();showToast('已刪除');
+}
+
+function clearExpForm(mm){
+  ['fn','fq','fp','fg','fpst','fo'].forEach(f=>{const el=document.getElementById(f+'-'+mm);if(el)el.value=f==='fq'?'1':'';});
+  const ph=document.getElementById('fph-'+mm);if(ph)ph.textContent='';
+  const cp=document.getElementById('calc-prev-'+mm);if(cp)cp.style.display='none';
+}
+
+/* ──────── Formula live hint ──────── */
+function bindFormulaHint(inputId, hintId){
+  const inp = document.getElementById(inputId);
+  const hint = document.getElementById(hintId);
+  if(!inp||!hint) return;
+  inp.addEventListener('input',()=>{
+    const v=evalFormula(inp.value);
+    if(!inp.value.trim()){hint.textContent='';return;}
+    if(v!==null){hint.textContent='= CAD '+v.toFixed(2);hint.className='formula-hint';}
+    else{hint.textContent='格式錯誤';hint.className='formula-hint err';}
+  });
+}
+
+function bindListeners(mm){
+  bindFormulaHint('fp-'+mm,'fph-'+mm);
+  bindFormulaHint('ifa-'+mm,'ifh-'+mm);
+  setExpWho(mm,'shared');
+  setExpPaid(mm,'kai');
+  setIncWho(mm,'kai');
+  populateCatSel(document.getElementById('fc-'+mm), CATS[0]);
+}
+
+/* ──────── Edit Expense ──────── */
+let editingExpId=null, editingIncId=null, editingMm=null;
+let editExpWhoVal='shared', editExpPaidVal='han';
+
+function openEditExpense(id,mm){
+  const e=expenses.find(x=>x.id===id);
+  if(!e) return;
+  editingExpId=id; editingMm=mm;
+  document.getElementById('eed-date').value=e.date;
+  document.getElementById('eed-name').value=e.name;
+  document.getElementById('eed-qty').value=e.qty;
+  document.getElementById('eed-price').value=e.priceExpr;
+  populateCatSel(document.getElementById('eed-cat'), e.cat);
+  document.getElementById('eed-gst').value=e.gst||'';
+  document.getElementById('eed-pst').value=e.pst||'';
+  document.getElementById('eed-note').value=e.note||'';
+  document.getElementById('eed-price-hint').textContent='';
+  setEditExpWho(e.who);
+  setEditExpPaid(e.paidBy);
+  document.getElementById('edit-exp-modal').classList.add('open');
+}
+function closeEditExp(){
+  document.getElementById('edit-exp-modal').classList.remove('open');
+}
+
+function setEditExpWho(who){
+  editExpWhoVal=who;
+  ['kai','han','shared'].forEach(w=>{
+    document.getElementById('ewho-'+w).className='who-btn'+(who===w?' sel-'+w:'');
+  });
+}
+function setEditExpPaid(who){
+  editExpPaidVal=who;
+  ['kai','han'].forEach(w=>{
+    document.getElementById('epaid-'+w).className='who-btn'+(who===w?' sel-'+w:'');
+  });
+}
+
+function saveEditExpense(){
+  const date=document.getElementById('eed-date').value;
+  const name=document.getElementById('eed-name').value.trim();
+  const qty=parseFloat(document.getElementById('eed-qty').value)||1;
+  const priceExpr=document.getElementById('eed-price').value.trim();
+  const cat=document.getElementById('eed-cat').value;
+  const gstExpr=document.getElementById('eed-gst').value.trim();
+  const pstExpr=document.getElementById('eed-pst').value.trim();
+  const note=document.getElementById('eed-note').value.trim();
+
+  if(!date||!name||!priceExpr){showToast('⚠ 請填寫日期、名稱和金額');return;}
+  const price=evalFormula(priceExpr);
+  if(price===null||price<=0){showToast('⚠ 金額格式錯誤');return;}
+  const gst=evalFormula(gstExpr)||0;
+  const pst=evalFormula(pstExpr)||0;
+
+  const idx=expenses.findIndex(e=>e.id===editingExpId);
+  if(idx===-1) return;
+  expenses[idx]={...expenses[idx],date,name,qty,priceExpr,price,cat,who:editExpWhoVal,paidBy:editExpPaidVal,gst,pst,note};
+  saveExp();
+  closeEditExp();
+  renderMonth(editingMm);renderYear();
+  showToast('✓ 已更新：'+name);
+}
+
+/* ──────── Edit Income ──────── */
+let editIncWhoVal='kai';
+
+function openEditIncome(id,mm){
+  const i=incomes.find(x=>x.id===id);
+  if(!i) return;
+  editingIncId=id; editingMm=mm;
+  document.getElementById('eid-date').value=i.date;
+  document.getElementById('eid-source').value=i.source;
+  document.getElementById('eid-amount').value=i.amount;
+  document.getElementById('eid-amount-hint').textContent='';
+  setEditIncWho(i.who);
+  document.getElementById('edit-inc-modal').classList.add('open');
+}
+function closeEditInc(){
+  document.getElementById('edit-inc-modal').classList.remove('open');
+}
+
+function setEditIncWho(who){
+  editIncWhoVal=who;
+  ['kai','han'].forEach(w=>{
+    document.getElementById('eiwho-'+w).className='who-btn'+(who===w?' sel-'+w:'');
+  });
+}
+
+function saveEditIncome(){
+  const date=document.getElementById('eid-date').value;
+  const source=document.getElementById('eid-source').value.trim();
+  const amtExpr=document.getElementById('eid-amount').value.trim();
+  if(!date||!source||!amtExpr){showToast('⚠ 請填寫所有欄位');return;}
+  const amount=evalFormula(amtExpr);
+  if(amount===null||amount<=0){showToast('⚠ 金額格式錯誤');return;}
+  const idx=incomes.findIndex(i=>i.id===editingIncId);
+  if(idx===-1) return;
+  incomes[idx]={...incomes[idx],date,source,amount,who:editIncWhoVal};
+  saveInc();
+  closeEditInc();
+  renderMonth(editingMm);renderYear();
+  showToast('✓ 已更新：'+source);
+}
+
+/* ── 編輯 modal 公式即時提示 ── */
+bindFormulaHint('eed-price','eed-price-hint');
+bindFormulaHint('eid-amount','eid-amount-hint');
+
+/* ──────── Panel ──────── */
+function showPanel(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(name.startsWith('m')){
+    const mm=name.slice(1);
+    const panel=document.getElementById('panel-'+name);
+    if(!panel.dataset.built){panel.innerHTML=buildMonthPanel(mm);panel.dataset.built='1';bindListeners(mm);}
+    renderMonth(mm);
+  } else if(name==='year'){renderYear();}
+}
+function showPanelByMonth(mm){showPanel('m'+mm,document.getElementById('nav-m'+mm));}
+
+/* ──────── Export ──────── */
+function exportCSV(){
+  let csv='\uFEFF月份,日期,項目,分類,屬於,付款人,數量,金額,GST,PST,小計,備註\n';
+  [...expenses].sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{
+    csv+=`${e.date.slice(5,7)},${e.date},${e.name},${e.cat},${e.who==='kai'?'凱':e.who==='han'?'涵':'共同'},${e.paidBy==='kai'?'凱':'涵'},${e.qty},${sub(e).toFixed(2)},${(e.gst||0).toFixed(2)},${(e.pst||0).toFixed(2)},${total(e).toFixed(2)},${e.note||''}\n`;
+  });
+  csv+='\n收入記錄\n月份,日期,來源,金額,誰的\n';
+  [...incomes].sort((a,b)=>a.date.localeCompare(b.date)).forEach(i=>{
+    csv+=`${i.date.slice(5,7)},${i.date},${i.source},${i.amount.toFixed(2)},${i.who==='kai'?'凱':'涵'}\n`;
+  });
+  dl(csv,'凱涵帳本_2026全年.csv');
+}
+function exportMonthCSV(mm){
+  const exps=monthExp(mm),incs=monthInc(mm);
+  let csv='\uFEFF日期,項目,分類,屬於,付款人,數量,金額,GST,PST,小計,備註\n';
+  exps.forEach(e=>{csv+=`${e.date},${e.name},${e.cat},${e.who==='kai'?'凱':e.who==='han'?'涵':'共同'},${e.paidBy==='kai'?'凱':'涵'},${e.qty},${sub(e).toFixed(2)},${(e.gst||0).toFixed(2)},${(e.pst||0).toFixed(2)},${total(e).toFixed(2)},${e.note||''}\n`;});
+  csv+='\n收入\n日期,來源,金額,誰的\n';
+  incs.forEach(i=>{csv+=`${i.date},${i.source},${i.amount.toFixed(2)},${i.who==='kai'?'凱':'涵'}\n`;});
+  dl(csv,`凱涵帳本_2026_${mm}月.csv`);
+}
+function dl(csv,fn){
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=fn;a.click();
+  URL.revokeObjectURL(url);showToast('✓ CSV 已匯出');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+/* ──────── Init ──────── */
+renderYear();
+MONTHS.forEach(mm=>{
+  const e=monthExp(mm),i=monthInc(mm);
+  if(e.length||i.length){
+    document.getElementById('nav-m'+mm).classList.add('has-data');
+    document.getElementById('cnt-m'+mm).textContent=e.length?e.length+'筆':'';
+  }
+});
+</script>
+</body>
+</html>
