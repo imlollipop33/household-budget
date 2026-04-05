@@ -2171,15 +2171,18 @@ MONTHS.forEach(mm=>{
 /* ══ 特價提醒功能 ══ */
 const GROCERY_URL = 'https://yenthesoloman.github.io/grocery/';
 
-// 從帳本統計常買品項（取 cat 中文名稱 + name，出現次數前50）
+// 排除不需要比對的分類
+const DEAL_EXCLUDE_CATS = ['外食', '餐廳', '飲食'];
+
+// 從帳本統計常買品項（排除外食類）
 function getFrequentItems() {
   const freq = {};
   expenses.forEach(e => {
+    if (DEAL_EXCLUDE_CATS.some(c => (e.cat||'').includes(c))) return;
     const key = e.name.trim();
-    if (!key) return;
+    if (!key || key === 'GST' || key === 'PST') return;
     freq[key] = (freq[key] || 0) + 1;
   });
-  // 回傳出現 2 次以上的品項名稱（小寫用於比對）
   return Object.entries(freq)
     .filter(([,v]) => v >= 2)
     .sort((a,b) => b[1]-a[1])
@@ -2277,7 +2280,11 @@ async function initDealBar() {
   const deals = await loadDeals();
   if (!deals.length) return;
   const freqItems = getFrequentItems();
-  const matched = matchDeals(deals, freqItems);
+  // 用跟 Console 測試一樣的比對邏輯
+  const matched = deals.filter(d => {
+    const z = (d.zh_label||'').trim();
+    return freqItems.some(item => item.includes(z) || z.includes(item));
+  });
   if (matched.length === 0) return;
   document.getElementById('deal-count').textContent = matched.length;
   document.getElementById('deal-count2').textContent = matched.length;
