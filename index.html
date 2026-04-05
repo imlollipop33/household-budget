@@ -2338,12 +2338,17 @@ async function renderDealModal() {
       const origHtml = d.original ? `<span class="deal-item-orig">$${d.original.toFixed(2)}</span>` : '';
       const pctHtml = d.savings_pct ? `<span class="deal-item-pct">-${d.savings_pct}%</span>` : '';
       const label = d.zh_label || d.name;
-      const searchKeyword = d.zh_label || label;
-      const storeName = d.store || '';
-      const groceryHash = encodeURIComponent('search=' + searchKeyword + (storeName ? '&store=' + storeName : ''));
-      const groceryLink = GROCERY_URL + '#' + groceryHash;
+      const searchKeyword = encodeURIComponent(d.name || label);
+      const storeLinks = {
+        'Walmart': `https://www.walmart.ca/search?q=${searchKeyword}`,
+        'Real Canadian Superstore': `https://www.realcanadiansuperstore.ca/search?search-bar=${searchKeyword}`,
+        'T&T Supermarket': `https://www.tntsupermarket.com/search#q=${searchKeyword}`,
+        'Save-On-Foods': `https://www.saveonfoods.com/sm/planning/rsid/900/results?q=${searchKeyword}`,
+        'PriceSmart': `https://www.pricesmartfoods.com/sm/planning/rsid/1300/results?q=${searchKeyword}`,
+      };
+      const storeLink = storeLinks[d.store] || `https://www.walmart.ca/search?q=${searchKeyword}`;
       html += `
-        <a class="deal-item" href="${groceryLink}" target="_blank" rel="noopener">
+        <a class="deal-item" href="${storeLink}" target="_blank" rel="noopener">
           <span class="deal-item-name">${label}</span>
           <span class="deal-item-right">
             ${origHtml}
