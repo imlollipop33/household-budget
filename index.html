@@ -2226,10 +2226,12 @@ const ZH_ALIAS = {
 // 從帳本統計常買品項（排除外食類）
 function getFrequentItems() {
   const freq = {};
+  // 只保留真正超市採買的分類
+  const DEAL_INCLUDE_CATS = ['咖啡', '日用品', '牛奶', '牛奶/奶製品', '米/麵/泡麵/麵包', '肉類', '蔬菜', '調味料', '雞蛋', '零食', '飲料'];
   expenses.forEach(e => {
-    if (DEAL_EXCLUDE_CATS.some(c => (e.cat||'').includes(c) || (e.name||'').includes(c))) return;
+    if (!DEAL_INCLUDE_CATS.some(c => (e.cat||'').includes(c))) return;
     const key = e.name.trim();
-    if (!key || key === 'GST' || key === 'PST' || key === '房租' || key === '交通') return;
+    if (!key || key === 'GST' || key === 'PST') return;
     freq[key] = (freq[key] || 0) + 1;
   });
   return Object.entries(freq)
