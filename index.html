@@ -2338,7 +2338,7 @@ async function renderDealModal() {
       const origHtml = d.original ? `<span class="deal-item-orig">$${d.original.toFixed(2)}</span>` : '';
       const pctHtml = d.savings_pct ? `<span class="deal-item-pct">-${d.savings_pct}%</span>` : '';
       const label = d.zh_label || d.name;
-      const searchKeyword = encodeURIComponent(d.name || label);
+      const searchKeyword = encodeURIComponent(d.zh_label || label);
       const storeLinks = {
         'Walmart': `https://www.walmart.ca/search?q=${searchKeyword}`,
         'Real Canadian Superstore': `https://www.realcanadiansuperstore.ca/search?search-bar=${searchKeyword}`,
