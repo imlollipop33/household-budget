@@ -2171,8 +2171,8 @@ MONTHS.forEach(mm=>{
 /* ══ 特價提醒功能 ══ */
 const GROCERY_URL = 'https://yenthesoloman.github.io/grocery/';
 
-// 排除不需要比對的分類
-const DEAL_EXCLUDE_CATS = ['外食', '餐廳', '飲食'];
+// 排除不需要比對的分類（非超市採買類）
+const DEAL_EXCLUDE_CATS = ['外食', '交通', '住宅', '保健食品', '個人消費', '呆帳', '房租', '美妝保養', 'GST', 'PST'];
 
 // 台灣用語 → Grocery zh_label 對照表
 const ZH_ALIAS = {
@@ -2227,9 +2227,9 @@ const ZH_ALIAS = {
 function getFrequentItems() {
   const freq = {};
   expenses.forEach(e => {
-    if (DEAL_EXCLUDE_CATS.some(c => (e.cat||'').includes(c))) return;
+    if (DEAL_EXCLUDE_CATS.some(c => (e.cat||'').includes(c) || (e.name||'').includes(c))) return;
     const key = e.name.trim();
-    if (!key || key === 'GST' || key === 'PST') return;
+    if (!key || key === 'GST' || key === 'PST' || key === '房租' || key === '交通') return;
     freq[key] = (freq[key] || 0) + 1;
   });
   return Object.entries(freq)
