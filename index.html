@@ -2356,13 +2356,13 @@ async function renderDealModal() {
       const enTerm = encodeURIComponent(ZH_TO_EN[d.zh_label] || d.zh_label || label);
       const zhTerm = encodeURIComponent(d.zh_label || label);
       const storeLinks = {
-        'Walmart': `https://www.walmart.ca/search?q=${enTerm}`,
-        'Real Canadian Superstore': `https://www.realcanadiansuperstore.ca/search?search-bar=${enTerm}`,
-        'T&T Supermarket': `https://www.tntsupermarket.com/search#q=${zhTerm}`,
-        'Save-On-Foods': `https://www.saveonfoods.com/sm/planning/rsid/900/results?q=${enTerm}`,
-        'Save-On Foods': `https://www.saveonfoods.com/sm/planning/rsid/900/results?q=${enTerm}`,
-        'PriceSmart 佳廉': `https://www.pricesmartfoods.com/sm/pickup/rsid/2274/results?q=${enTerm}`,
-        'PriceSmart': `https://www.pricesmartfoods.com/sm/pickup/rsid/2274/results?q=${enTerm}`,
+        'Walmart': `https://www.walmart.ca/search?q=${enTerm}&sort=price_asc`,
+        'Real Canadian Superstore': `https://www.realcanadiansuperstore.ca/search?search-bar=${enTerm}&sort=price-asc`,
+        'T&T Supermarket': `https://www.tntsupermarket.com/search#q=${zhTerm}&sort=price_asc`,
+        'Save-On-Foods': `https://www.saveonfoods.com/sm/planning/rsid/900/results?q=${enTerm}&sort=price-asc`,
+        'Save-On Foods': `https://www.saveonfoods.com/sm/planning/rsid/900/results?q=${enTerm}&sort=price-asc`,
+        'PriceSmart 佳廉': `https://www.pricesmartfoods.com/sm/pickup/rsid/2274/results?q=${enTerm}&sort=price-asc`,
+        'PriceSmart': `https://www.pricesmartfoods.com/sm/pickup/rsid/2274/results?q=${enTerm}&sort=price-asc`,
       };
       const storeLink = storeLinks[d.store] || `https://www.walmart.ca/search?q=${searchKeyword}`;
       html += `
