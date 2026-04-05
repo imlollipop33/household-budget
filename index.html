@@ -2338,9 +2338,12 @@ async function renderDealModal() {
       const origHtml = d.original ? `<span class="deal-item-orig">$${d.original.toFixed(2)}</span>` : '';
       const pctHtml = d.savings_pct ? `<span class="deal-item-pct">-${d.savings_pct}%</span>` : '';
       const label = d.zh_label || d.name;
-      const searchKeyword = d.name || label;
+      const searchKeyword = d.zh_label || label;
+      const storeName = d.store || '';
+      const groceryHash = encodeURIComponent('search=' + searchKeyword + (storeName ? '&store=' + storeName : ''));
+      const groceryLink = GROCERY_URL + '#' + groceryHash;
       html += `
-        <a class="deal-item" href="#" onclick="openGrocerySearch(${JSON.stringify(searchKeyword)});return false;">
+        <a class="deal-item" href="${groceryLink}" target="_blank" rel="noopener">
           <span class="deal-item-name">${label}</span>
           <span class="deal-item-right">
             ${origHtml}
