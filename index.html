@@ -2419,7 +2419,7 @@ async function initDealBar() {
 // ══ 個人購買規則 ══
 // 格式：{ zh_label匹配詞, 偏好超市, 價格門檻(低於才顯示), 搜尋詞, 備註 }
 const MY_RULES = [
-  { match:'可樂',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'coca cola',           note:'walmart近期較便宜' },
+  { match:'可樂',      stores:['Walmart','Real Canadian Superstore'], threshold:2.00,  en:'coca cola',           note:'低於$2才提醒' },
   { match:'雞蛋',      stores:['Walmart'],                            threshold:null,  en:'eggs',                note:'現在都在walmart買' },
   { match:'豬肉水餃',  stores:['Walmart','Real Canadian Superstore'], threshold:6.00,  en:"O'Tasty dumplings",   note:'低於$6才值得買' },
   { match:'大白菜',    stores:['Real Canadian Superstore'],           threshold:null,  en:'napa cabbage',        note:'通常在superstore買，最好$0.99/lb以下' },
