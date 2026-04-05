@@ -2275,39 +2275,34 @@ function matchDeals(deals, freqItems) {
 }
 
 let dealData = null; // cache
+const POSTAL_CODE = 'V5H4L9';
+const FLIPP_API = 'https://backflipp.wishabi.com/flipp/items/search?locale=en-CA&postal_code=' + POSTAL_CODE + '&q=';
+
+// 從 Flipp API 抓單一關鍵字的特價
+async function fetchFlippItems(query) {
+  try {
+    const res = await fetch(FLIPP_API + encodeURIComponent(query));
+    const data = await res.json();
+    return (data.items || []).map(d => ({
+      name: d.name || '',
+      price: d.current_price,
+      original: d.original_price,
+      savings_pct: d.original_price && d.current_price ? Math.round((1 - d.current_price / d.original_price) * 100) : null,
+      store: d.merchant_name || '',
+      zh_label: '',
+    }));
+  } catch(e) {
+    return [];
+  }
+}
 
 async function loadDeals() {
   if (dealData) return dealData;
-  return new Promise((resolve) => {
-    // 用 script tag 繞過 CORS，grocery 頁面 var DEALS 是全域變數
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = GROCERY_URL;
-    iframe.onload = () => {
-      try {
-        const d = iframe.contentWindow.DEALS;
-        if (d && Array.isArray(d)) {
-          dealData = d;
-          resolve(dealData);
-        } else {
-          resolve([]);
-        }
-      } catch(e) {
-        // 如果跨域被擋，改用 cors proxy
-        fetch('https://corsproxy.io/?' + encodeURIComponent(GROCERY_URL))
-          .then(r => r.text())
-          .then(html => {
-            const m = html.match(/var\s+DEALS\s*=\s*(\[[\s\S]*?\]);/);
-            if (m) { dealData = JSON.parse(m[1]); resolve(dealData); }
-            else resolve([]);
-          })
-          .catch(() => resolve([]));
-      }
-      document.body.removeChild(iframe);
-    };
-    iframe.onerror = () => { resolve([]); };
-    document.body.appendChild(iframe);
-  });
+  // 用 MY_RULES 裡的 en 關鍵字去 Flipp API 查詢
+  const queries = [...new Set(MY_RULES.map(r => r.en))];
+  const all = await Promise.all(queries.map(q => fetchFlippItems(q)));
+  dealData = all.flat();
+  return dealData;
 }
 
 function openDealModal() {
@@ -2426,6 +2421,7 @@ const MY_RULES = [
   { match:'蔥抓餅',    stores:['Walmart','PriceSmart 佳廉'],          threshold:4.47,  en:'Synear scallion pancake', note:'原價$4.47，低於就提醒' },
   { match:'奇多',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'cheetos',             note:'walmart+superstore都買' },
   { match:'樂事',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'lays chips',          note:'superstore打折就去那買' },
+  { match:'樂事',      stores:['PriceSmart 佳廉'],                    threshold:null,  en:'lays chips',          note:'佳廉有打折也提醒' },
   { match:'Natrel牛奶',    stores:['Walmart','Real Canadian Superstore'], threshold:6.00,  en:'Natrel lactose free',    note:'低於$6才提醒' },
   { match:'Dairyland牛奶', stores:['Walmart','Real Canadian Superstore'], threshold:6.00,  en:'Dairyland lactose free', note:'低於$6才提醒' },
   { match:'培根',      stores:['Walmart'],                            threshold:null,  en:'bacon',               note:'通常walmart便宜' },
@@ -2453,12 +2449,10 @@ function matchDealsByRules(deals) {
     deals.forEach(d => {
       const z = (d.zh_label||'').trim();
       const n = (d.name||'').toLowerCase();
-      // 中文 zh_label 比對（完全一致才算，避免「豬肉」match到「豬肉水餃」）
-      const matchLabel = z && z === rule.match;
       // 英文 en 比對（用 en 裡的每個詞去比對商品英文名）
       const enWords = (rule.en||'').toLowerCase().split(' ').filter(w => w.length > 3);
       const matchEn = enWords.length > 0 && enWords.every(w => n.includes(w));
-      if (!matchLabel && !matchEn) return;
+      if (!matchEn) return;
       if (!rule.stores.some(s => (d.store||'').includes(s) || s.includes(d.store||''))) return;
       if (rule.threshold && d.price > rule.threshold) return;
       // 去重：同規則同超市只保留最便宜一筆
