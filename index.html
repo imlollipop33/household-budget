@@ -2330,7 +2330,7 @@ async function renderDealModal() {
   const makeLink = (store, en) => {
     const q = encodeURIComponent(en);
     if (store === 'Walmart') return `https://www.walmart.ca/search?q=${q}&sort=price_asc`;
-    if (store === 'Real Canadian Superstore') return `https://www.realcanadiansuperstore.ca/en/search?search-bar=${q}&sort=price-asc`;
+    if (store === 'Real Canadian Superstore') return `https://www.realcanadiansuperstore.ca/en/search?search-bar=${q}`;
     if (store === 'T&T Supermarket') return `https://www.tntsupermarket.com/search#q=${q}`;
     if (store.includes('PriceSmart')) return `https://www.pricesmartfoods.com/sm/pickup/rsid/2274/results?q=${q}&sort=price-asc`;
     if (store.includes('Save-On')) return `https://www.saveonfoods.com/sm/planning/rsid/900/results?q=${q}&sort=price-asc`;
