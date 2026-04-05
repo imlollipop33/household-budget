@@ -29,6 +29,36 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .av-kai{background:var(--kai);}
 .av-han{background:var(--han);}
 
+/* ── Grocery Deal Banner ── */
+#deal-bar{display:flex;align-items:center;gap:10px;padding:10px 2rem;background:var(--surface);border-bottom:1px solid var(--border);}
+#deal-bar.hidden{display:none;}
+.deal-btn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#4caf7d,#2a9a5a);color:white;border:none;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 2px 6px #4caf7d44;}
+.deal-btn:hover{opacity:0.88;}
+.deal-badge{background:rgba(255,255,255,0.3);border-radius:10px;padding:1px 7px;font-size:12px;font-weight:700;}
+.deal-hint{font-size:12px;color:var(--text2);}
+.deal-hint b{color:var(--text);}
+
+/* ── Grocery Modal ── */
+#deal-modal{display:none;position:fixed;inset:0;z-index:500;align-items:flex-start;justify-content:center;padding-top:80px;}
+#deal-modal.open{display:flex;}
+#deal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.35);}
+#deal-box{position:relative;background:var(--surface);border-radius:14px;width:480px;max-width:95vw;max-height:70vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,0.18);}
+#deal-box-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+#deal-box-title{font-size:15px;font-weight:700;}
+#deal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3);line-height:1;padding:2px 6px;}
+#deal-close:hover{color:var(--text);}
+#deal-box-body{overflow-y:auto;padding:14px 20px 18px;}
+.deal-store-label{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.07em;text-transform:uppercase;margin:12px 0 6px;}
+.deal-store-label:first-child{margin-top:0;}
+.deal-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg);border-radius:8px;margin-bottom:4px;font-size:13px;cursor:pointer;transition:background 0.1s;text-decoration:none;color:inherit;}
+.deal-item:hover{background:#e8f4e8;}
+.deal-item-name{font-weight:500;}
+.deal-item-right{display:flex;align-items:center;gap:7px;}
+.deal-item-price{font-weight:700;color:#2a7a4a;font-family:var(--mono);}
+.deal-item-orig{color:var(--text3);text-decoration:line-through;font-size:11px;font-family:var(--mono);}
+.deal-item-pct{background:#e8f4e8;color:#2a7a4a;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;}
+.deal-empty{font-size:13px;color:var(--text2);text-align:center;padding:20px 0;}
+
 /* ── Layout ── */
 .layout{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 60px);}
 .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:1rem;display:flex;flex-direction:column;gap:2px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;}
@@ -357,6 +387,11 @@ tr:hover .btn-sm{opacity:1;}
       <div class="page-header">
         <div><div class="page-title" id="year-title">2026 年度總覽</div><div class="page-sub">凱 &amp; 涵 所有月份合計</div></div>
         <button class="hdr-btn" onclick="exportCSV()">📥 匯出全年 CSV</button>
+      </div>
+      <!-- 特價提醒列 -->
+      <div id="deal-bar" class="hidden">
+        <button class="deal-btn" onclick="openDealModal()">🛒 本週特價 <span class="deal-badge" id="deal-count">0</span></button>
+        <div class="deal-hint">你常買的 <b id="deal-count2">0</b> 樣東西本週有打折</div>
       </div>
       <div class="page-body">
         <div class="grid4" id="year-summary"></div>
@@ -2115,6 +2150,146 @@ MONTHS.forEach(mm=>{
     document.getElementById('nav-m'+mm).classList.add('has-data');
     document.getElementById('cnt-m'+mm).textContent=e.length?e.length+'筆':'';
   }
+});
+</script>
+
+<!-- ══ 特價提醒 Modal ══ -->
+<div id="deal-modal">
+  <div id="deal-backdrop" onclick="closeDealModal()"></div>
+  <div id="deal-box">
+    <div id="deal-box-header">
+      <div id="deal-box-title">🛒 本週你常買的特價商品</div>
+      <button id="deal-close" onclick="closeDealModal()">✕</button>
+    </div>
+    <div id="deal-box-body">
+      <div class="deal-empty">載入中...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ 特價提醒功能 ══ */
+const GROCERY_URL = 'https://yenthesoloman.github.io/grocery/';
+
+// 從帳本統計常買品項（取 cat 中文名稱 + name，出現次數前50）
+function getFrequentItems() {
+  const freq = {};
+  expenses.forEach(e => {
+    const key = e.name.trim();
+    if (!key) return;
+    freq[key] = (freq[key] || 0) + 1;
+  });
+  // 回傳出現 2 次以上的品項名稱（小寫用於比對）
+  return Object.entries(freq)
+    .filter(([,v]) => v >= 2)
+    .sort((a,b) => b[1]-a[1])
+    .slice(0, 60)
+    .map(([k]) => k.toLowerCase());
+}
+
+// 比對 grocery DEALS 陣列和帳本常買品項
+function matchDeals(deals, freqItems) {
+  return deals.filter(d => {
+    const haystack = (
+      (d.name||'') + ' ' +
+      (d.zh_label||'') + ' ' +
+      (d.description||'')
+    ).toLowerCase();
+    return freqItems.some(item => {
+      // 支援部分比對（至少2字元）
+      if (item.length < 2) return false;
+      return haystack.includes(item) || item.includes(haystack.split(' ')[0]);
+    });
+  });
+}
+
+let dealData = null; // cache
+
+async function loadDeals() {
+  if (dealData) return dealData;
+  try {
+    const res = await fetch(GROCERY_URL);
+    const html = await res.text();
+    // 從 HTML 中取出 var DEALS = [...] 的 JSON
+    const match = html.match(/var\s+DEALS\s*=\s*(\[[\s\S]*?\]);/);
+    if (!match) return [];
+    dealData = JSON.parse(match[1]);
+    return dealData;
+  } catch(e) {
+    console.error('載入特價資料失敗', e);
+    return [];
+  }
+}
+
+function openDealModal() {
+  document.getElementById('deal-modal').classList.add('open');
+  renderDealModal();
+}
+function closeDealModal() {
+  document.getElementById('deal-modal').classList.remove('open');
+}
+
+async function renderDealModal() {
+  const body = document.getElementById('deal-box-body');
+  body.innerHTML = '<div class="deal-empty">載入中...</div>';
+  const deals = await loadDeals();
+  const freqItems = getFrequentItems();
+  const matched = matchDeals(deals, freqItems);
+
+  if (matched.length === 0) {
+    body.innerHTML = '<div class="deal-empty">本週沒有找到你常買的特價商品</div>';
+    return;
+  }
+
+  // 按超市分組
+  const byStore = {};
+  matched.forEach(d => {
+    const s = d.store || '其他';
+    if (!byStore[s]) byStore[s] = [];
+    byStore[s].push(d);
+  });
+
+  const storeEmoji = { 'Walmart':'🟡', 'Real Canadian Superstore':'🟢', 'T&T Supermarket':'🔴', 'Save-On-Foods':'🔵', 'PriceSmart':'🟠' };
+
+  let html = '';
+  Object.entries(byStore).forEach(([store, items]) => {
+    const em = storeEmoji[store] || '🏪';
+    html += `<div class="deal-store-label">${em} ${store}</div>`;
+    items.forEach(d => {
+      const origHtml = d.original ? `<span class="deal-item-orig">$${d.original.toFixed(2)}</span>` : '';
+      const pctHtml = d.savings_pct ? `<span class="deal-item-pct">-${d.savings_pct}%</span>` : '';
+      const label = d.zh_label || d.name;
+      const searchQ = encodeURIComponent(label);
+      const url = `${GROCERY_URL}?q=${searchQ}`;
+      html += `
+        <a class="deal-item" href="${url}" target="_blank" rel="noopener">
+          <span class="deal-item-name">${label}</span>
+          <span class="deal-item-right">
+            ${origHtml}
+            <span class="deal-item-price">$${d.price.toFixed(2)}</span>
+            ${pctHtml}
+          </span>
+        </a>`;
+    });
+  });
+
+  body.innerHTML = html;
+}
+
+async function initDealBar() {
+  const deals = await loadDeals();
+  if (!deals.length) return;
+  const freqItems = getFrequentItems();
+  const matched = matchDeals(deals, freqItems);
+  if (matched.length === 0) return;
+  document.getElementById('deal-count').textContent = matched.length;
+  document.getElementById('deal-count2').textContent = matched.length;
+  document.getElementById('deal-bar').classList.remove('hidden');
+}
+
+// 初始化（等帳本資料載入後執行）
+window.addEventListener('load', () => {
+  setTimeout(initDealBar, 800);
 });
 </script>
 </body>
