@@ -2420,8 +2420,8 @@ const MY_RULES = [
   { match:'大白菜',    stores:['Real Canadian Superstore'],           threshold:null,  en:'napa cabbage',        note:'通常在superstore買，最好$0.99/lb以下' },
   { match:'蔥抓餅',    stores:['Walmart','PriceSmart 佳廉'],          threshold:4.47,  en:'Synear scallion pancake', note:'原價$4.47，低於就提醒' },
   { match:'奇多',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'cheetos',             note:'walmart+superstore都買' },
-  { match:'樂事',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'lays chips',          note:'superstore打折就去那買' },
-  { match:'樂事',      stores:['PriceSmart 佳廉'],                    threshold:null,  en:'lays chips',          note:'佳廉有打折也提醒' },
+  { match:'樂事',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:"lay's potato chips",  note:'superstore打折就去那買' },
+  { match:'樂事',      stores:['PriceSmart 佳廉'],                    threshold:null,  en:"lay's potato chips",  note:'佳廉有打折也提醒' },
   { match:'Natrel牛奶',    stores:['Walmart','Real Canadian Superstore'], threshold:6.00,  en:'Natrel lactose free',    note:'低於$6才提醒' },
   { match:'Dairyland牛奶', stores:['Walmart','Real Canadian Superstore'], threshold:6.00,  en:'Dairyland lactose free', note:'低於$6才提醒' },
   { match:'培根',      stores:['Walmart'],                            threshold:null,  en:'bacon',               note:'通常walmart便宜' },
@@ -2438,8 +2438,8 @@ const MY_RULES = [
   { match:'優格',      stores:['Walmart'],                            threshold:3.50,  en:'activia yogurt',      note:'Activia牌，低於$3.50才提醒' },
   { match:'雲吞',      stores:['PriceSmart 佳廉'],                    threshold:null,  en:'Foongs Kitchen wonton', note:'佳廉Foongs Kitchen牌' },
   { match:'爆米花',    stores:['Walmart'],                            threshold:null,  en:'orville redenbacher popcorn', note:'Walmart買' },
-  { match:'咖啡',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'coffee',              note:'' },
-  { match:'麵包',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'bread',               note:'' },
+  { match:'咖啡',      stores:['Walmart','Real Canadian Superstore'], threshold:20.00, en:'ground coffee',       note:'低於$20才提醒，要是咖啡粉/豆不是咖啡機' },
+  { match:'麵包',      stores:['Walmart','Real Canadian Superstore'], threshold:4.00,  en:'bread loaf',          note:'低於$4才提醒' },
 ];
 
 // 用購買規則比對 deals（zh_label 或英文名都比對）
