@@ -2192,10 +2192,10 @@ function matchDeals(deals, freqItems) {
   return deals.filter(d => {
     const zhLabel = (d.zh_label || '').trim();
     if (!zhLabel) return false;
-    // 帳本品項名稱只要包含 zh_label（或反過來），就算比對成功
     return freqItems.some(item => {
       if (!item || item.length < 1) return false;
-      return item.includes(zhLabel) || zhLabel.split('').filter(c=>c.trim()).every(c => item.includes(c));
+      // 直接包含比對：帳本品項包含 zh_label，或 zh_label 包含帳本品項
+      return item.includes(zhLabel) || zhLabel.includes(item);
     });
   });
 }
