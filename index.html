@@ -2331,6 +2331,7 @@ async function renderDealModal() {
 
   // 找出帳本裡對應每個 zh_label 最常買的品項名稱
   const labelToFreqName = {};
+  const freqItems = getFrequentItems();
   const allItems = expandAliases(freqItems);
   freqItems.forEach(item => {
     // 找出這個帳本品項對應的 zh_label
