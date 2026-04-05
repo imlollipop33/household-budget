@@ -2184,21 +2184,18 @@ function getFrequentItems() {
     .filter(([,v]) => v >= 2)
     .sort((a,b) => b[1]-a[1])
     .slice(0, 60)
-    .map(([k]) => k.toLowerCase());
+    .map(([k]) => k.trim());
 }
 
 // 比對 grocery DEALS 陣列和帳本常買品項
 function matchDeals(deals, freqItems) {
   return deals.filter(d => {
-    const haystack = (
-      (d.name||'') + ' ' +
-      (d.zh_label||'') + ' ' +
-      (d.description||'')
-    ).toLowerCase();
+    const zhLabel = (d.zh_label || '').trim();
+    if (!zhLabel) return false;
+    // 帳本品項名稱只要包含 zh_label（或反過來），就算比對成功
     return freqItems.some(item => {
-      // 支援部分比對（至少2字元）
-      if (item.length < 2) return false;
-      return haystack.includes(item) || item.includes(haystack.split(' ')[0]);
+      if (!item || item.length < 1) return false;
+      return item.includes(zhLabel) || zhLabel.split('').filter(c=>c.trim()).every(c => item.includes(c));
     });
   });
 }
