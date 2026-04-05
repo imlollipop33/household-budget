@@ -2322,108 +2322,55 @@ async function renderDealModal() {
   const body = document.getElementById('deal-box-body');
   body.innerHTML = '<div class="deal-empty">載入中...</div>';
   const deals = await loadDeals();
-  const matched = matchDealsByRules(deals);
 
-  if (matched.length === 0) {
-    body.innerHTML = '<div class="deal-empty">本週沒有找到你常買的特價商品</div>';
-    return;
-  }
+  // 按超市分組，每間超市列出你常買的品項，點了直接用英文搜尋
+  const storeOrder = ['Walmart', 'Real Canadian Superstore', 'T&T Supermarket', 'PriceSmart 佳廉', 'Save-On-Foods'];
+  const storeEmoji = { 'Walmart':'🟡', 'Real Canadian Superstore':'🟢', 'T&T Supermarket':'🔴', 'Save-On-Foods':'🔵', 'PriceSmart 佳廉':'🟠' };
 
-  // 找出帳本裡對應每個 zh_label 最常買的品項名稱
-  const labelToFreqName = {};
-  const freqItems = getFrequentItems();
-  const allItems = expandAliases(freqItems);
-  freqItems.forEach(item => {
-    // 找出這個帳本品項對應的 zh_label
-    matched.forEach(d => {
-      const z = (d.zh_label||'').trim();
-      if (z && (item.includes(z) || z.includes(item))) {
-        if (!labelToFreqName[z]) labelToFreqName[z] = item;
+  const storeLinks = (store, en) => {
+    const q = encodeURIComponent(en);
+    if (store === 'Walmart') return `https://www.walmart.ca/search?q=${q}&sort=price_asc`;
+    if (store === 'Real Canadian Superstore') return `https://www.realcanadiansuperstore.ca/search?search-bar=${q}&sort=price-asc`;
+    if (store === 'T&T Supermarket') return `https://www.tntsupermarket.com/search#q=${q}`;
+    if (store.includes('PriceSmart')) return `https://www.pricesmartfoods.com/sm/pickup/rsid/2274/results?q=${q}&sort=price-asc`;
+    if (store.includes('Save-On')) return `https://www.saveonfoods.com/sm/planning/rsid/900/results?q=${q}&sort=price-asc`;
+    return `https://www.walmart.ca/search?q=${q}`;
+  };
+
+  // 找出這週 grocery deals 裡有哪些英文名字有特價（用來標記）
+  const dealNames = new Set(deals.map(d => (d.name||'').toLowerCase()));
+  const dealEnCheck = (en) => deals.some(d => en.split(' ').some(w => w.length > 3 && (d.name||'').toLowerCase().includes(w)));
+
+  // 按超市整理 MY_RULES
+  const byStore = {};
+  MY_RULES.forEach(rule => {
+    // 去重：同超市同 match 只顯示一次
+    rule.stores.forEach(store => {
+      if (!byStore[store]) byStore[store] = [];
+      if (!byStore[store].find(r => r.match === rule.match)) {
+        byStore[store].push(rule);
       }
     });
   });
 
-  // 每個 zh_label 每間超市只保留折扣最高的一筆
-  const seen = {};
-  const deduped = [];
-  matched.forEach(d => {
-    const key = `${d.store||'其他'}_${d.zh_label||d.name}`;
-    if (!seen[key] || (d.savings_pct||0) > (seen[key].savings_pct||0)) {
-      seen[key] = d;
-    }
-  });
-  Object.values(seen).forEach(d => deduped.push(d));
-
-  // 按超市分組
-  const byStore = {};
-  deduped.forEach(d => {
-    const s = d.store || '其他';
-    if (!byStore[s]) byStore[s] = [];
-    byStore[s].push(d);
-  });
-
-  const storeEmoji = { 'Walmart':'🟡', 'Real Canadian Superstore':'🟢', 'T&T Supermarket':'🔴', 'Save-On-Foods':'🔵', 'PriceSmart':'🟠' };
-
   let html = '';
-  Object.entries(byStore).forEach(([store, items]) => {
+  storeOrder.forEach(store => {
+    const rules = byStore[store];
+    if (!rules || rules.length === 0) return;
     const em = storeEmoji[store] || '🏪';
     html += `<div class="deal-store-label">${em} ${store}</div>`;
-    items.forEach(d => {
-      const origHtml = d.original ? `<span class="deal-item-orig">$${d.original.toFixed(2)}</span>` : '';
-      const pctHtml = d.savings_pct ? `<span class="deal-item-pct">-${d.savings_pct}%</span>` : '';
-      const label = d._displayName || d.zh_label || d.name;
-      // 中文 zh_label → 英文搜尋關鍵字對照（避免搜到奇怪的東西）
-      const ZH_TO_EN = {
-        // zh_label → 英文
-        '咖啡': 'coffee', '牛奶': 'milk', '雞蛋': 'eggs', '麵包': 'bread',
-        '豬肉': 'pork', '雞肉': 'chicken', '牛肉': 'beef', '培根': 'bacon',
-        '火腿': 'ham', '薯片': 'chips', '餅乾': 'crackers', '芝士': 'cheese',
-        '乳酪': 'yogurt', '米飯': 'rice', '麵': 'nongshim noodles', '意粉': 'pasta',
-        '番茄': 'tomato', '生菜': 'lettuce', '西蘭花': 'broccoli',
-        '馬鈴薯': 'potato', '香蕉': 'banana', '蘋果': 'apple',
-        '葡萄': 'grapes', '橙': 'orange', '芒果': 'mango',
-        '三文魚': 'salmon', '蝦': 'shrimp', '吞拿魚': 'tuna',
-        '食油': 'oil', '醬汁': 'sauce', '麵粉': 'flour',
-        '紙巾': 'tissue', '廚房紙': 'paper towel', '洗衣液': 'laundry detergent',
-        '肥皂': 'dish soap', '水': 'water', '忌廉': 'cream',
-        '急凍食品': 'frozen food', '火雞': 'turkey',
-        // 帳本品項名稱 → 英文（直接用品牌/品項名稱搜尋）
-        '辛拉麵': 'shin ramyun', '農心': 'nongshim', '泡麵': 'instant noodles',
-        '馬鈴薯麵': 'nongshim potato noodle', '玉米螺螄': 'corn spiral noodle',
-        '樂事': 'lays chips', '奇多': 'cheetos', '洋芋片': 'potato chips',
-        '可樂': 'coca cola', 'Coke Zero': 'coke zero', 'Canada Dry': 'canada dry',
-        '大白菜': 'napa cabbage', '金針菇': 'enoki mushroom', '蔥抓餅': 'green onion pancake',
-        '豆腐': 'tofu', '杏鮑菇': 'king oyster mushroom', '海帶芽': 'wakame seaweed',
-        '雞腿': 'chicken leg', '雞胸': 'chicken breast', '豬絞肉': 'ground pork',
-        '豬五花': 'pork belly', '牛絞肉': 'ground beef',
-        '醬油': 'soy sauce', '麻油': 'sesame oil', '米酒': 'rice wine',
-        '衛生紙': 'toilet paper', '洗碗精': 'dish soap', '洗手乳': 'hand soap',
-      };
-      const enTerm = encodeURIComponent((d._rule && d._rule.en) || ZH_TO_EN[d.zh_label] || label);
-      const zhTerm = encodeURIComponent(label);
-      const storeLinks = {
-        'Walmart': `https://www.walmart.ca/search?q=${enTerm}&sort=price_asc`,
-        'Real Canadian Superstore': `https://www.realcanadiansuperstore.ca/search?search-bar=${enTerm}&sort=price-asc`,
-        'T&T Supermarket': `https://www.tntsupermarket.com/search#q=${zhTerm}&sort=price_asc`,
-        'Save-On-Foods': `https://www.saveonfoods.com/sm/planning/rsid/900/results?q=${enTerm}&sort=price-asc`,
-        'Save-On Foods': `https://www.saveonfoods.com/sm/planning/rsid/900/results?q=${enTerm}&sort=price-asc`,
-        'PriceSmart 佳廉': `https://www.pricesmartfoods.com/sm/pickup/rsid/2274/results?q=${enTerm}&sort=price-asc`,
-        'PriceSmart': `https://www.pricesmartfoods.com/sm/pickup/rsid/2274/results?q=${enTerm}&sort=price-asc`,
-      };
-      const storeLink = storeLinks[d.store] || `https://www.walmart.ca/search?q=${searchKeyword}`;
+    rules.forEach(rule => {
+      const link = storeLinks(store, rule.en);
+      const thresholdHtml = rule.threshold ? `<span class="deal-item-pct">低於$${rule.threshold}</span>` : '';
       html += `
-        <a class="deal-item" href="${storeLink}" target="_blank" rel="noopener">
-          <span class="deal-item-name">${label}</span>
-          <span class="deal-item-right">
-            ${origHtml}
-            <span class="deal-item-price">$${d.price.toFixed(2)}</span>
-            ${pctHtml}
-          </span>
+        <a class="deal-item" href="${link}" target="_blank" rel="noopener">
+          <span class="deal-item-name">${rule.match}</span>
+          <span class="deal-item-right">${thresholdHtml}</span>
         </a>`;
     });
   });
 
-  body.innerHTML = html;
+  body.innerHTML = html || '<div class="deal-empty">沒有設定常買品項</div>';
 }
 
 // 把帳本品項名稱轉換成 grocery zh_label 可比對的詞
