@@ -2304,8 +2304,7 @@ async function renderDealModal() {
   const body = document.getElementById('deal-box-body');
   body.innerHTML = '<div class="deal-empty">載入中...</div>';
   const deals = await loadDeals();
-  const freqItems = getFrequentItems();
-  const matched = dealMatch(deals, freqItems);
+  const matched = matchDealsByRules(deals);
 
   if (matched.length === 0) {
     body.innerHTML = '<div class="deal-empty">本週沒有找到你常買的特價商品</div>';
@@ -2353,9 +2352,7 @@ async function renderDealModal() {
     items.forEach(d => {
       const origHtml = d.original ? `<span class="deal-item-orig">$${d.original.toFixed(2)}</span>` : '';
       const pctHtml = d.savings_pct ? `<span class="deal-item-pct">-${d.savings_pct}%</span>` : '';
-      // 顯示帳本裡實際買的品項名稱（如「樂事」「奇多」），而不是 zh_label（「薯片」）
-      const freqName = labelToFreqName[d.zh_label] || d.zh_label || d.name;
-      const label = freqName;
+      const label = d._displayName || d.zh_label || d.name;
       // 中文 zh_label → 英文搜尋關鍵字對照（避免搜到奇怪的東西）
       const ZH_TO_EN = {
         // zh_label → 英文
@@ -2383,8 +2380,8 @@ async function renderDealModal() {
         '醬油': 'soy sauce', '麻油': 'sesame oil', '米酒': 'rice wine',
         '衛生紙': 'toilet paper', '洗碗精': 'dish soap', '洗手乳': 'hand soap',
       };
-      const enTerm = encodeURIComponent(ZH_TO_EN[freqName] || ZH_TO_EN[d.zh_label] || freqName || label);
-      const zhTerm = encodeURIComponent(freqName || d.zh_label || label);
+      const enTerm = encodeURIComponent((d._rule && d._rule.en) || ZH_TO_EN[d.zh_label] || label);
+      const zhTerm = encodeURIComponent(label);
       const storeLinks = {
         'Walmart': `https://www.walmart.ca/search?q=${enTerm}&sort=price_asc`,
         'Real Canadian Superstore': `https://www.realcanadiansuperstore.ca/search?search-bar=${enTerm}&sort=price-asc`,
@@ -2445,6 +2442,66 @@ async function initDealBar() {
   const count = seenKeys.size;
   document.getElementById('deal-count').textContent = count;
   document.getElementById('deal-count2').textContent = count;
+  document.getElementById('deal-bar').classList.remove('hidden');
+}
+
+// ══ 個人購買規則 ══
+// 格式：{ zh_label匹配詞, 偏好超市, 價格門檻(低於才顯示), 搜尋詞, 備註 }
+const MY_RULES = [
+  { match:'可樂',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'coca cola',           note:'walmart近期較便宜' },
+  { match:'雞蛋',      stores:['Walmart'],                            threshold:null,  en:'eggs',                note:'現在都在walmart買' },
+  { match:'豬肉水餃',  stores:['Walmart','Real Canadian Superstore'], threshold:6.00,  en:"O'Tasty dumplings",   note:'低於$6才值得買' },
+  { match:'水餃',      stores:['Walmart','Real Canadian Superstore'], threshold:6.00,  en:"O'Tasty dumplings",   note:'低於$6才值得買' },
+  { match:'大白菜',    stores:['Real Canadian Superstore'],           threshold:null,  en:'napa cabbage',        note:'通常在superstore買，最好$0.99/lb以下' },
+  { match:'奇多',      stores:['Walmart'],                            threshold:null,  en:'cheetos',             note:'通常在walmart買' },
+  { match:'樂事',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'lays chips',          note:'superstore打折就去那買' },
+  { match:'薯片',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'chips',               note:'' },
+  { match:'洋芋片',    stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'chips',               note:'' },
+  { match:'牛奶',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'milk',                note:'兩間看誰便宜' },
+  { match:'培根',      stores:['Walmart'],                            threshold:null,  en:'bacon',               note:'通常walmart便宜' },
+  { match:'辛拉麵',    stores:['Real Canadian Superstore'],           threshold:null,  en:'shin ramyun',         note:'通常在superstore買' },
+  { match:'泡麵',      stores:['Real Canadian Superstore'],           threshold:null,  en:'nongshim noodles',    note:'通常在superstore買' },
+  { match:'馬鈴薯麵',  stores:['Real Canadian Superstore'],           threshold:4.98,  en:'nongshim potato noodle', note:'正常$4.98，低於才提醒' },
+  { match:'洋菇',      stores:['Real Canadian Superstore'],           threshold:null,  en:'mushroom',            note:'在superstore買' },
+  { match:'金針菇',    stores:['PriceSmart 佳廉'],                    threshold:0.99,  en:'enoki mushroom',      note:'$0.99以下才買' },
+  { match:'雞胸肉',    stores:['Real Canadian Superstore'],           threshold:15.00, en:'chicken breast',      note:'一盒$15，低於才提醒' },
+  { match:'雞胸',      stores:['Real Canadian Superstore'],           threshold:15.00, en:'chicken breast',      note:'一盒$15，低於才提醒' },
+  { match:'馬鈴薯',    stores:['Real Canadian Superstore'],           threshold:null,  en:'potato',              note:'通常在superstore買' },
+  { match:'咖啡',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'coffee',              note:'' },
+  { match:'雞蛋',      stores:['Walmart'],                            threshold:null,  en:'eggs',                note:'' },
+  { match:'豬肉',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'pork',                note:'' },
+  { match:'麵包',      stores:['Walmart','Real Canadian Superstore'], threshold:null,  en:'bread',               note:'' },
+];
+
+// 用購買規則比對 deals
+function matchDealsByRules(deals) {
+  const results = [];
+  MY_RULES.forEach(rule => {
+    deals.forEach(d => {
+      const z = (d.zh_label||'').trim();
+      const n = (d.name||'').toLowerCase();
+      const matchLabel = z && (rule.match.includes(z) || z.includes(rule.match));
+      const matchName = n.includes(rule.match.toLowerCase());
+      if (!matchLabel && !matchName) return;
+      if (!rule.stores.some(s => (d.store||'').includes(s) || s.includes(d.store||''))) return;
+      if (rule.threshold && d.price > rule.threshold) return;
+      // 去重：同規則同超市只保留一筆
+      const key = `${rule.match}_${d.store}`;
+      if (!results.find(r => r._key === key)) {
+        results.push({...d, _key: key, _rule: rule, _displayName: rule.match});
+      }
+    });
+  });
+  return results;
+}
+
+async function initDealBar() {
+  const deals = await loadDeals();
+  if (!deals.length) return;
+  const matched = matchDealsByRules(deals);
+  if (matched.length === 0) return;
+  document.getElementById('deal-count').textContent = matched.length;
+  document.getElementById('deal-count2').textContent = matched.length;
   document.getElementById('deal-bar').classList.remove('hidden');
 }
 
