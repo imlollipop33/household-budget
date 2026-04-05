@@ -2174,6 +2174,55 @@ const GROCERY_URL = 'https://yenthesoloman.github.io/grocery/';
 // 排除不需要比對的分類
 const DEAL_EXCLUDE_CATS = ['外食', '餐廳', '飲食'];
 
+// 台灣用語 → Grocery zh_label 對照表
+const ZH_ALIAS = {
+  '洋芋片': '薯片',
+  '洋芋': '薯片',
+  '樂事': '薯片',
+  '可樂': '飲料',
+  '汽水': '飲料',
+  '麵包': '麵包',
+  '吐司': '麵包',
+  '豬肉': '豬肉',
+  '雞肉': '雞肉',
+  '牛肉': '牛肉',
+  '培根': '培根',
+  '火腿': '火腿',
+  '雞蛋': '雞蛋',
+  '牛奶': '牛奶',
+  '奶油': '忌廉',
+  '鮮奶油': '忌廉',
+  '起司': '芝士',
+  '乳酪': '乳酪',
+  '優格': '乳酪',
+  '鮭魚': '三文魚',
+  '蝦': '蝦',
+  '鮪魚': '吞拿魚',
+  '番茄': '番茄',
+  '生菜': '生菜',
+  '西蘭花': '西蘭花',
+  '花椰菜': '西蘭花',
+  '馬鈴薯': '馬鈴薯',
+  '葡萄': '葡萄',
+  '橘子': '橙',
+  '柳橙': '橙',
+  '芒果': '芒果',
+  '香蕉': '香蕉',
+  '蘋果': '蘋果',
+  '沙拉油': '食油',
+  '醬油': '醬汁',
+  '泡麵': '麵',
+  '拉麵': '麵',
+  '米': '米飯',
+  '白米': '米飯',
+  '衛生紙': '紙巾',
+  '廚房紙巾': '廚房紙',
+  '洗碗精': '肥皂',
+  '洗手乳': '肥皂',
+  '洗衣精': '洗衣液',
+  '冷凍': '急凍食品',
+};
+
 // 從帳本統計常買品項（排除外食類）
 function getFrequentItems() {
   const freq = {};
@@ -2234,7 +2283,7 @@ async function renderDealModal() {
   body.innerHTML = '<div class="deal-empty">載入中...</div>';
   const deals = await loadDeals();
   const freqItems = getFrequentItems();
-  const matched = matchDeals(deals, freqItems);
+  const matched = dealMatch(deals, freqItems);
 
   if (matched.length === 0) {
     body.innerHTML = '<div class="deal-empty">本週沒有找到你常買的特價商品</div>';
@@ -2276,15 +2325,34 @@ async function renderDealModal() {
   body.innerHTML = html;
 }
 
+// 把帳本品項名稱轉換成 grocery zh_label 可比對的詞
+function expandAliases(items) {
+  const expanded = new Set(items);
+  items.forEach(item => {
+    // 直接對照
+    if (ZH_ALIAS[item]) expanded.add(ZH_ALIAS[item]);
+    // 部分包含對照
+    Object.entries(ZH_ALIAS).forEach(([tw, hk]) => {
+      if (item.includes(tw)) expanded.add(hk);
+    });
+  });
+  return [...expanded];
+}
+
+function dealMatch(deals, freqItems) {
+  const allItems = expandAliases(freqItems);
+  return deals.filter(d => {
+    const z = (d.zh_label||'').trim();
+    if (!z) return false;
+    return allItems.some(item => item.includes(z) || z.includes(item));
+  });
+}
+
 async function initDealBar() {
   const deals = await loadDeals();
   if (!deals.length) return;
   const freqItems = getFrequentItems();
-  // 用跟 Console 測試一樣的比對邏輯
-  const matched = deals.filter(d => {
-    const z = (d.zh_label||'').trim();
-    return freqItems.some(item => item.includes(z) || z.includes(item));
-  });
+  const matched = dealMatch(deals, freqItems);
   if (matched.length === 0) return;
   document.getElementById('deal-count').textContent = matched.length;
   document.getElementById('deal-count2').textContent = matched.length;
