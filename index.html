@@ -2338,7 +2338,23 @@ async function renderDealModal() {
       const origHtml = d.original ? `<span class="deal-item-orig">$${d.original.toFixed(2)}</span>` : '';
       const pctHtml = d.savings_pct ? `<span class="deal-item-pct">-${d.savings_pct}%</span>` : '';
       const label = d.zh_label || d.name;
-      const searchKeyword = encodeURIComponent(d.zh_label || label);
+      // 中文 zh_label → 英文搜尋關鍵字對照（避免搜到奇怪的東西）
+      const ZH_TO_EN = {
+        '咖啡': 'coffee', '牛奶': 'milk', '雞蛋': 'eggs', '麵包': 'bread',
+        '豬肉': 'pork', '雞肉': 'chicken', '牛肉': 'beef', '培根': 'bacon',
+        '火腿': 'ham', '薯片': 'chips', '餅乾': 'crackers', '芝士': 'cheese',
+        '乳酪': 'yogurt', '米飯': 'rice', '麵': 'noodles', '意粉': 'pasta',
+        '番茄': 'tomato', '生菜': 'lettuce', '西蘭花': 'broccoli',
+        '馬鈴薯': 'potato', '香蕉': 'banana', '蘋果': 'apple',
+        '葡萄': 'grapes', '橙': 'orange', '芒果': 'mango',
+        '三文魚': 'salmon', '蝦': 'shrimp', '吞拿魚': 'tuna',
+        '食油': 'oil', '醬汁': 'sauce', '麵粉': 'flour',
+        '紙巾': 'tissue', '廚房紙': 'paper towel', '洗衣液': 'laundry',
+        '肥皂': 'dish soap', '水': 'water', '忌廉': 'cream',
+        '急凍食品': 'frozen food', '火雞': 'turkey', '豬肉': 'pork',
+      };
+      const searchTerm = ZH_TO_EN[d.zh_label] || d.zh_label || label;
+      const searchKeyword = encodeURIComponent(searchTerm);
       const storeLinks = {
         'Walmart': `https://www.walmart.ca/search?q=${searchKeyword}`,
         'Real Canadian Superstore': `https://www.realcanadiansuperstore.ca/search?search-bar=${searchKeyword}`,
