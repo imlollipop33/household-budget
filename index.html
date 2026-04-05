@@ -1955,15 +1955,28 @@ async function cloudSync(){
   const btn=document.getElementById('sync-btn');
   btn.textContent='☁️ 上傳中...';
   try{
-    const data=collectData();
+    const CHUNK=8000;
+    const raw=collectData();
+    const data={};
+    for(const k in raw){
+      const val=String(raw[k]||'');
+      if(val.length<=CHUNK){
+        data[k]=val;
+      } else {
+        const chunks=[];
+        for(let i=0;i<val.length;i+=CHUNK) chunks.push(val.slice(i,i+CHUNK));
+        data[k]=chunks[0];
+        for(let i=1;i<chunks.length;i++) data[k+'__'+i]=chunks[i];
+      }
+    }
     const res=await fetch(url,{
       method:'POST',
-      body:JSON.stringify(data),
+      body:JSON.stringify({action:'setAll',data}),
       headers:{'Content-Type':'text/plain'}
     });
     const json=await res.json();
     if(json.ok){showToast('✓ 雲端同步完成！');}
-    else{showToast('❌ 同步失敗：'+json.error);}
+    else{showToast('❌ 同步失敗：'+(json.error||''));}
   }catch(err){
     showToast('❌ 網路錯誤，請確認設定');
     console.error(err);
