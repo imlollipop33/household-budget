@@ -2171,6 +2171,23 @@ MONTHS.forEach(mm=>{
 /* ══ 特價提醒功能 ══ */
 const GROCERY_URL = 'https://yenthesoloman.github.io/grocery/';
 
+function openGrocerySearch(keyword) {
+  const win = window.open(GROCERY_URL, '_blank');
+  // 等新分頁載入完成後自動填入搜尋
+  const timer = setInterval(() => {
+    try {
+      const input = win.document.querySelector('input[type="search"], input[type="text"], .search-wrap input, #search-input, input');
+      if (input) {
+        input.value = keyword;
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        input.dispatchEvent(new KeyboardEvent('keyup', {bubbles: true}));
+        clearInterval(timer);
+      }
+    } catch(e) { clearInterval(timer); }
+  }, 500);
+  setTimeout(() => clearInterval(timer), 8000);
+}
+
 // 排除不需要比對的分類（非超市採買類）
 const DEAL_EXCLUDE_CATS = ['外食', '交通', '住宅', '保健食品', '個人消費', '呆帳', '房租', '美妝保養', 'GST', 'PST'];
 
@@ -2292,9 +2309,20 @@ async function renderDealModal() {
     return;
   }
 
+  // 每個 zh_label 每間超市只保留折扣最高的一筆
+  const seen = {};
+  const deduped = [];
+  matched.forEach(d => {
+    const key = `${d.store||'其他'}_${d.zh_label||d.name}`;
+    if (!seen[key] || (d.savings_pct||0) > (seen[key].savings_pct||0)) {
+      seen[key] = d;
+    }
+  });
+  Object.values(seen).forEach(d => deduped.push(d));
+
   // 按超市分組
   const byStore = {};
-  matched.forEach(d => {
+  deduped.forEach(d => {
     const s = d.store || '其他';
     if (!byStore[s]) byStore[s] = [];
     byStore[s].push(d);
@@ -2310,10 +2338,9 @@ async function renderDealModal() {
       const origHtml = d.original ? `<span class="deal-item-orig">$${d.original.toFixed(2)}</span>` : '';
       const pctHtml = d.savings_pct ? `<span class="deal-item-pct">-${d.savings_pct}%</span>` : '';
       const label = d.zh_label || d.name;
-      const searchQ = encodeURIComponent(label);
-      const url = `${GROCERY_URL}?q=${searchQ}`;
+      const searchKeyword = d.name || label;
       html += `
-        <a class="deal-item" href="${url}" target="_blank" rel="noopener">
+        <a class="deal-item" href="#" onclick="openGrocerySearch(${JSON.stringify(searchKeyword)});return false;">
           <span class="deal-item-name">${label}</span>
           <span class="deal-item-right">
             ${origHtml}
@@ -2356,8 +2383,12 @@ async function initDealBar() {
   const freqItems = getFrequentItems();
   const matched = dealMatch(deals, freqItems);
   if (matched.length === 0) return;
-  document.getElementById('deal-count').textContent = matched.length;
-  document.getElementById('deal-count2').textContent = matched.length;
+  // 去重後計算數量
+  const seenKeys = new Set();
+  matched.forEach(d => seenKeys.add(`${d.store||''}_${d.zh_label||d.name}`));
+  const count = seenKeys.size;
+  document.getElementById('deal-count').textContent = count;
+  document.getElementById('deal-count2').textContent = count;
   document.getElementById('deal-bar').classList.remove('hidden');
 }
 
