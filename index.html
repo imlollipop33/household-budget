@@ -2309,6 +2309,19 @@ async function renderDealModal() {
     return;
   }
 
+  // 找出帳本裡對應每個 zh_label 最常買的品項名稱
+  const labelToFreqName = {};
+  const allItems = expandAliases(freqItems);
+  freqItems.forEach(item => {
+    // 找出這個帳本品項對應的 zh_label
+    matched.forEach(d => {
+      const z = (d.zh_label||'').trim();
+      if (z && (item.includes(z) || z.includes(item))) {
+        if (!labelToFreqName[z]) labelToFreqName[z] = item;
+      }
+    });
+  });
+
   // 每個 zh_label 每間超市只保留折扣最高的一筆
   const seen = {};
   const deduped = [];
@@ -2337,7 +2350,9 @@ async function renderDealModal() {
     items.forEach(d => {
       const origHtml = d.original ? `<span class="deal-item-orig">$${d.original.toFixed(2)}</span>` : '';
       const pctHtml = d.savings_pct ? `<span class="deal-item-pct">-${d.savings_pct}%</span>` : '';
-      const label = d.zh_label || d.name;
+      // 顯示帳本裡實際買的品項名稱（如「樂事」「奇多」），而不是 zh_label（「薯片」）
+      const freqName = labelToFreqName[d.zh_label] || d.zh_label || d.name;
+      const label = freqName;
       // 中文 zh_label → 英文搜尋關鍵字對照（避免搜到奇怪的東西）
       const ZH_TO_EN = {
         '咖啡': 'coffee', '牛奶': 'milk', '雞蛋': 'eggs', '麵包': 'bread',
@@ -2353,8 +2368,8 @@ async function renderDealModal() {
         '肥皂': 'dish soap', '水': 'water', '忌廉': 'cream',
         '急凍食品': 'frozen food', '火雞': 'turkey', '豬肉': 'pork',
       };
-      const enTerm = encodeURIComponent(ZH_TO_EN[d.zh_label] || d.zh_label || label);
-      const zhTerm = encodeURIComponent(d.zh_label || label);
+      const enTerm = encodeURIComponent(ZH_TO_EN[d.zh_label] || freqName || label);
+      const zhTerm = encodeURIComponent(freqName || d.zh_label || label);
       const storeLinks = {
         'Walmart': `https://www.walmart.ca/search?q=${enTerm}&sort=price_asc`,
         'Real Canadian Superstore': `https://www.realcanadiansuperstore.ca/search?search-bar=${enTerm}&sort=price-asc`,
