@@ -2453,8 +2453,8 @@ function matchDealsByRules(deals) {
     deals.forEach(d => {
       const z = (d.zh_label||'').trim();
       const n = (d.name||'').toLowerCase();
-      // 中文 zh_label 比對
-      const matchLabel = z && (rule.match.includes(z) || z.includes(rule.match));
+      // 中文 zh_label 比對（完全一致才算，避免「豬肉」match到「豬肉水餃」）
+      const matchLabel = z && z === rule.match;
       // 英文 en 比對（用 en 裡的每個詞去比對商品英文名）
       const enWords = (rule.en||'').toLowerCase().split(' ').filter(w => w.length > 3);
       const matchEn = enWords.length > 0 && enWords.every(w => n.includes(w));
