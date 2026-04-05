@@ -2278,18 +2278,36 @@ let dealData = null; // cache
 
 async function loadDeals() {
   if (dealData) return dealData;
-  try {
-    const res = await fetch(GROCERY_URL);
-    const html = await res.text();
-    // 從 HTML 中取出 var DEALS = [...] 的 JSON
-    const match = html.match(/var\s+DEALS\s*=\s*(\[[\s\S]*?\]);/);
-    if (!match) return [];
-    dealData = JSON.parse(match[1]);
-    return dealData;
-  } catch(e) {
-    console.error('載入特價資料失敗', e);
-    return [];
-  }
+  return new Promise((resolve) => {
+    // 用 script tag 繞過 CORS，grocery 頁面 var DEALS 是全域變數
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = GROCERY_URL;
+    iframe.onload = () => {
+      try {
+        const d = iframe.contentWindow.DEALS;
+        if (d && Array.isArray(d)) {
+          dealData = d;
+          resolve(dealData);
+        } else {
+          resolve([]);
+        }
+      } catch(e) {
+        // 如果跨域被擋，改用 cors proxy
+        fetch('https://corsproxy.io/?' + encodeURIComponent(GROCERY_URL))
+          .then(r => r.text())
+          .then(html => {
+            const m = html.match(/var\s+DEALS\s*=\s*(\[[\s\S]*?\]);/);
+            if (m) { dealData = JSON.parse(m[1]); resolve(dealData); }
+            else resolve([]);
+          })
+          .catch(() => resolve([]));
+      }
+      document.body.removeChild(iframe);
+    };
+    iframe.onerror = () => { resolve([]); };
+    document.body.appendChild(iframe);
+  });
 }
 
 function openDealModal() {
