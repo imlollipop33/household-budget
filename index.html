@@ -2355,20 +2355,32 @@ async function renderDealModal() {
       const label = freqName;
       // 中文 zh_label → 英文搜尋關鍵字對照（避免搜到奇怪的東西）
       const ZH_TO_EN = {
+        // zh_label → 英文
         '咖啡': 'coffee', '牛奶': 'milk', '雞蛋': 'eggs', '麵包': 'bread',
         '豬肉': 'pork', '雞肉': 'chicken', '牛肉': 'beef', '培根': 'bacon',
         '火腿': 'ham', '薯片': 'chips', '餅乾': 'crackers', '芝士': 'cheese',
-        '乳酪': 'yogurt', '米飯': 'rice', '麵': 'noodles', '意粉': 'pasta',
+        '乳酪': 'yogurt', '米飯': 'rice', '麵': 'nongshim noodles', '意粉': 'pasta',
         '番茄': 'tomato', '生菜': 'lettuce', '西蘭花': 'broccoli',
         '馬鈴薯': 'potato', '香蕉': 'banana', '蘋果': 'apple',
         '葡萄': 'grapes', '橙': 'orange', '芒果': 'mango',
         '三文魚': 'salmon', '蝦': 'shrimp', '吞拿魚': 'tuna',
         '食油': 'oil', '醬汁': 'sauce', '麵粉': 'flour',
-        '紙巾': 'tissue', '廚房紙': 'paper towel', '洗衣液': 'laundry',
+        '紙巾': 'tissue', '廚房紙': 'paper towel', '洗衣液': 'laundry detergent',
         '肥皂': 'dish soap', '水': 'water', '忌廉': 'cream',
-        '急凍食品': 'frozen food', '火雞': 'turkey', '豬肉': 'pork',
+        '急凍食品': 'frozen food', '火雞': 'turkey',
+        // 帳本品項名稱 → 英文（直接用品牌/品項名稱搜尋）
+        '辛拉麵': 'shin ramyun', '農心': 'nongshim', '泡麵': 'instant noodles',
+        '馬鈴薯麵': 'nongshim potato noodle', '玉米螺螄': 'corn spiral noodle',
+        '樂事': 'lays chips', '奇多': 'cheetos', '洋芋片': 'potato chips',
+        '可樂': 'coca cola', 'Coke Zero': 'coke zero', 'Canada Dry': 'canada dry',
+        '大白菜': 'napa cabbage', '金針菇': 'enoki mushroom', '蔥抓餅': 'green onion pancake',
+        '豆腐': 'tofu', '杏鮑菇': 'king oyster mushroom', '海帶芽': 'wakame seaweed',
+        '雞腿': 'chicken leg', '雞胸': 'chicken breast', '豬絞肉': 'ground pork',
+        '豬五花': 'pork belly', '牛絞肉': 'ground beef',
+        '醬油': 'soy sauce', '麻油': 'sesame oil', '米酒': 'rice wine',
+        '衛生紙': 'toilet paper', '洗碗精': 'dish soap', '洗手乳': 'hand soap',
       };
-      const enTerm = encodeURIComponent(ZH_TO_EN[d.zh_label] || freqName || label);
+      const enTerm = encodeURIComponent(ZH_TO_EN[freqName] || ZH_TO_EN[d.zh_label] || freqName || label);
       const zhTerm = encodeURIComponent(freqName || d.zh_label || label);
       const storeLinks = {
         'Walmart': `https://www.walmart.ca/search?q=${enTerm}&sort=price_asc`,
