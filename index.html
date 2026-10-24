@@ -351,6 +351,10 @@ tr:hover .btn-sm{opacity:1;}
 .mob-nav-btn{padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;border:none;background:none;color:var(--text2);font-family:inherit;white-space:nowrap;}
 .mob-nav-btn.active{background:var(--accent-light);color:var(--accent);font-weight:500;}
 </style>
+<link rel="stylesheet" href="little-theme.css">
+<link rel="stylesheet" href="legacy-adapter.css">
+<link rel="icon" href="assets/favicon.svg">
+<meta name="theme-color" content="#eeebf7">
 </head>
 <body>
 
@@ -369,14 +373,24 @@ tr:hover .btn-sm{opacity:1;}
 </header>
 
 <div class="layout">
-  <aside class="sidebar">
-    <div class="nav-section">總覽</div>
-    <button class="nav-item active" onclick="showPanel('year',this)">
-      <div class="nav-dot"></div>年度總覽
-    </button>
-
-    <div class="nav-section">月份記帳</div>
-    <button class="nav-item" onclick="showPanel('m01',this)" id="nav-m01"><div class="nav-dot"></div>1月<span class="nav-badge" id="cnt-m01"></span></button>
+  <aside class="sidebar ll-sidebar"><svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10H3zM9 20v-7h6v7"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v5M17 3v5M3 11h18M8 15h2M14 15h2"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h17M7 15v-4M12 15V5M17 15V8"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="16" cy="17" r="3"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="m14 4 6 6M4 20l5-1L21 7l-5-5L4 14z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M6 18a5 5 0 0 1-1-9 7 7 0 0 1 13-2 5.5 5.5 0 0 1 0 11M12 12v9m-3-6 3-3 3 3"/></symbol>
+  </svg><a class="brand" href="#overview" onclick="event.preventDefault();llNavigate('overview')"><span class="brand-mark">✳</span><span>一起存<small>LITTLE LEDGER</small></span></a><div class="workspace-label"><span class="tiny-dot"></span>凱 &amp; 涵的生活帳本<span class="workspace-heart">♡</span></div><p class="nav-caption">我們的日常</p><nav><button class="nav-item" data-ll-page="overview" onclick="llNavigate('overview')"><svg class="icon"><use href="#i-home"/></svg><span>日常總覽</span></button><button class="nav-item" data-ll-page="records" onclick="llNavigate('records')"><svg class="icon"><use href="#i-list"/></svg><span>收支明細</span></button><button class="nav-item" data-ll-page="calendar" onclick="llNavigate('calendar')"><svg class="icon"><use href="#i-calendar"/></svg><span>記帳月曆</span></button><button class="nav-item" data-ll-page="settlement" onclick="llNavigate('settlement')"><svg class="icon"><use href="#i-heart"/></svg><span>兩人分帳</span></button><button class="nav-item" data-ll-page="year" onclick="llNavigate('year')"><svg class="icon"><use href="#i-chart"/></svg><span>年度回顧</span></button></nav><details class="ll-month-links"><summary>各月份記帳</summary><button class="nav-item" onclick="showPanel('m01',this)" id="nav-m01"><div class="nav-dot"></div>1月<span class="nav-badge" id="cnt-m01"></span></button>
     <button class="nav-item" onclick="showPanel('m02',this)" id="nav-m02"><div class="nav-dot"></div>2月<span class="nav-badge" id="cnt-m02"></span></button>
     <button class="nav-item" onclick="showPanel('m03',this)" id="nav-m03"><div class="nav-dot"></div>3月<span class="nav-badge" id="cnt-m03"></span></button>
     <button class="nav-item" onclick="showPanel('m04',this)" id="nav-m04"><div class="nav-dot"></div>4月<span class="nav-badge" id="cnt-m04"></span></button>
@@ -389,16 +403,18 @@ tr:hover .btn-sm{opacity:1;}
     <button class="nav-item" onclick="showPanel('m11',this)" id="nav-m11"><div class="nav-dot"></div>11月<span class="nav-badge" id="cnt-m11"></span></button>
     <button class="nav-item" onclick="showPanel('m12',this)" id="nav-m12"><div class="nav-dot"></div>12月<span class="nav-badge" id="cnt-m12"></span></button>
 
-    <div class="nav-section">工具</div>
-    <button class="nav-item" onclick="exportCSV()"><div class="nav-dot"></div>匯出全年 CSV</button>
+    </details><div class="sidebar-bottom"><div class="sidebar-note"><span class="note-spark">✴</span><p>好好生活，<br>也好好照顧口袋。</p><small>one little entry at a time.</small></div><button class="nav-item" data-ll-page="settings" onclick="llNavigate('settings')"><svg class="icon"><use href="#i-settings"/></svg><span>設定與備份</span></button><small class="sidebar-sign" id="ll-save-indicator">原帳本資料・雲端同步</small></div></aside>
+
+  <main class="main" id="ll-main"><div id="ll-heading" class="page-heading"><div><p class="eyebrow" id="ll-eyebrow">OUR LITTLE LIFE</p><h1 id="ll-title">我們的小日子</h1><p class="page-description" id="ll-description">每一筆日常，都在往喜歡的生活靠近。</p></div><div class="heading-actions"><div class="period-picker"><button class="icon-button" onclick="llShiftMonth(-1)" aria-label="上一個月">‹</button><select id="ll-month" aria-label="月份" onchange="llChangeMonth(this.value)"><option value="01">1月</option><option value="02">2月</option><option value="03">3月</option><option value="04">4月</option><option value="05">5月</option><option value="06">6月</option><option value="07">7月</option><option value="08">8月</option><option value="09">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select><select id="ll-year" aria-label="年度" onchange="llChangeYear(this.value)"></select><button class="icon-button" onclick="llShiftMonth(1)" aria-label="下一個月">›</button></div><button class="button primary" onclick="llOpenAdd('expense')">＋ 新增一筆</button></div></div>
+<div id="ll-cloud-status" role="status" class="ll-cloud-status">正在確認雲端資料…</div>
+<div id="panel-overview" class="panel"><section class="hero"><div class="hero-copy"><span class="hero-pill">一個帳本，兩個人的日常</span><h2>一點一點，<br>把日子存起來 <em>✳</em></h2><p>不只記下花了多少，<br>也記得我們一起生活的模樣。</p></div><div class="cat-family" role="img" aria-label="五隻貓咪並排陪你記帳，會隨滑鼠自然轉頭"><span class="cat-portrait cat-1" data-cat="1"><canvas class="cat-motion" width="512" height="768" aria-hidden="true"></canvas></span><span class="cat-portrait cat-2" data-cat="2"><canvas class="cat-motion" width="512" height="768" aria-hidden="true"></canvas></span><span class="cat-portrait cat-3" data-cat="3"><canvas class="cat-motion" width="512" height="768" aria-hidden="true"></canvas></span><span class="cat-portrait cat-4" data-cat="4"><canvas class="cat-motion" width="512" height="768" aria-hidden="true"></canvas></span><span class="cat-portrait cat-5" data-cat="5"><canvas class="cat-motion" width="512" height="768" aria-hidden="true"></canvas></span></div><span class="hero-script">little by little, together.</span></section><section class="metrics" id="ll-metrics" aria-label="本月收支摘要"></section><div class="dashboard-grid"><section class="ll-card"><header><div><h2>最近的日常</h2><p>那些小小的、好好生活的證明</p></div><button class="text-button" onclick="llNavigate('records')">全部明細 ↗</button></header><div id="ll-recent"></div></section><section class="ll-card"><header><div><h2>這個月，花在哪裡？</h2><p>讓每一分錢，都有清楚的去向</p></div><span>✴</span></header><div id="ll-categories"></div></section></div><div class="together-strip"><span>♡</span><p id="ll-settle-text"></p><button class="text-button" onclick="llNavigate('settlement')">看分帳 ↗</button></div></div>
+<div id="panel-settings" class="panel"><div class="ll-mobile-pages"><button class="nav-item" data-ll-page="settlement" onclick="llNavigate('settlement')"><svg class="icon"><use href="#i-heart"/></svg><span>兩人分帳</span></button><button class="nav-item" data-ll-page="year" onclick="llNavigate('year')"><svg class="icon"><use href="#i-chart"/></svg><span>年度回顧</span></button></div><div class="settings-grid"><section class="ll-card"><header><div><h2>備份與雲端同步</h2><p>沿用原帳本的完整資料格式與雲端服務</p></div></header><div class="ll-tools"><button class="nav-item" onclick="exportCSV()"><div class="nav-dot"></div>匯出全年 CSV</button>
     <button class="nav-item" onclick="exportJSON()"><div class="nav-dot"></div>📦 匯出資料</button>
     <button class="nav-item" onclick="importJSONTrigger()"><div class="nav-dot"></div>📂 匯入資料</button>
     <input type="file" id="import-json-input" accept=".json" style="display:none" onchange="importJSON(this)">
     <button class="nav-item" onclick="cloudSync()" id="sync-btn"><div class="nav-dot"></div>☁️ 雲端同步</button>
     <button class="nav-item" onclick="cloudLoad()" id="load-btn"><div class="nav-dot"></div>⬇️ 從雲端載入</button>
-  </aside>
-
-  <main class="main">
+  </div><div class="ll-sync-url"><label for="ll-sync-url">Google Apps Script 同步服務網址</label><input type="url" id="ll-sync-url" autocomplete="off"><button class="button subtle" onclick="llSaveCloudUrl()">儲存同步網址</button><p>電腦記帳後按「雲端同步」，手機開啟原網址即可查看。若有尚未上傳的本機變更，會先保留並提示，不會自動覆蓋。</p></div></section><section class="ll-card"><header><div><h2>帳本分類</h2><p>原帳本的自訂分類完整保留</p></div></header><div id="ll-cats" class="category-settings"></div><div class="ll-restore-tools"><button class="button subtle" onclick="llExportSafety()">下載更新前自動備份</button><button class="button subtle" onclick="llRestoreSafety()">還原最近一次自動備份</button></div></section></div></div>
     <!-- 年度總覽 -->
     <div id="panel-year" class="panel active">
       <div class="page-header">
@@ -459,7 +475,7 @@ tr:hover .btn-sm{opacity:1;}
 <div class="toast" id="toast"></div>
 
 <!-- Mobile bottom nav -->
-<nav class="mob-nav" id="mob-nav">
+<nav class="mob-nav ll-old-mob-nav" id="mob-nav">
   <div class="mob-nav-inner">
     <button class="mob-nav-btn active" onclick="showPanel('year',this)" id="mobnav-year">年度</button>
     <button class="mob-nav-btn" onclick="showPanel('m01',this)" id="mobnav-m01">1月</button>
@@ -2309,29 +2325,7 @@ function showToast(msg){
 }
 
 /* ──────── Auto Cloud Load on Start ──────── */
-(async function autoLoad(){
-  try{
-    const r=await fetch(SYNC_URL);
-    const d=await r.json();
-    if(d.ok && d.data){
-      for(const key in d.data){
-        if(key && d.data[key]!==undefined) localStorage.setItem(key,d.data[key]);
-      }
-      expenses=JSON.parse(localStorage.getItem('hh_exp_'+currentYear)||'[]');
-      incomes=JSON.parse(localStorage.getItem('hh_inc_'+currentYear)||'[]');
-      nextExpId=expenses.length?Math.max(...expenses.map(e=>e.id))+1:1;
-      nextIncId=incomes.length?Math.max(...incomes.map(i=>i.id))+1:1;
-    }
-  }catch(e){}
-  renderYear();
-  MONTHS.forEach(mm=>{
-    const e=monthExp(mm),i=monthInc(mm);
-    if(e.length||i.length){
-      document.getElementById('nav-m'+mm).classList.add('has-data');
-      document.getElementById('cnt-m'+mm).textContent=e.length?e.length+'筆':'';
-    }
-  });
-})();
+/* Cloud startup is handled by ledger-bridge.js with unsynced-data protection. */
 
 /* ──────── Init ──────── */
 renderYear();
@@ -2674,6 +2668,6 @@ window.addEventListener('load', () => {
   setTimeout(initDealBar, 800);
 });
 </script>
-</body>
+<div class="modal-overlay" id="ll-add-modal" onclick="if(event.target===this)llCloseAdd()"><div class="modal"><div class="modal-title"><span id="ll-add-title">新增一筆</span><button class="icon-button" style="margin-left:auto" onclick="llCloseAdd()" aria-label="關閉新增視窗">✕</button></div><div class="segmented ll-entry-tabs"><button onclick="llOpenAdd('expense')">支出</button><button onclick="llOpenAdd('income')">收入</button></div><div id="ll-add-host"></div></div></div><nav class="mobile-nav ll-mobile" aria-label="手機導覽"><button class="nav-item" data-ll-page="overview" onclick="llNavigate('overview')"><svg class="icon"><use href="#i-home"/></svg><span>總覽</span></button><button class="nav-item" data-ll-page="records" onclick="llNavigate('records')"><svg class="icon"><use href="#i-list"/></svg><span>明細</span></button><button class="ll-mobile-add" aria-label="新增一筆" onclick="llOpenAdd('expense')">＋</button><button class="nav-item" data-ll-page="calendar" onclick="llNavigate('calendar')"><svg class="icon"><use href="#i-calendar"/></svg><span>月曆</span></button><button class="nav-item" data-ll-page="settings" onclick="llNavigate('settings')"><svg class="icon"><use href="#i-settings"/></svg><span>更多</span></button></nav><script src="ledger-data.js"></script><script src="ledger-bridge.js"></script><script src="cat-painter.js"></script><script src="companion.js"></script></body>
 </html>
 

@@ -22,31 +22,20 @@
   <p>正在從雲端載入最新資料...</p>
   <div class="status" id="status">連接中...</div>
 </div>
-<script>
-const SYNC_URL = 'https://script.google.com/macros/s/AKfycbz2fyFw2U5FY7Uvz6fn04b2lk_FdOVTBR4pQvP8Cj29NhDzSXT9482t8BCtSUvebg/exec';
+<script src="ledger-data.js"></script><script>
+const SYNC_URL = localStorage.getItem('hh_sync_url') || 'https://script.google.com/macros/s/AKfycbz2fyFw2U5FY7Uvz6fn04b2lk_FdOVTBR4pQvP8Cj29NhDzSXT9482t8BCtSUvebg/exec';
 const el = document.getElementById('status');
-fetch(SYNC_URL)
-  .then(r => r.json())
-  .then(d => {
-    if (!d.ok) throw new Error('雲端回應錯誤');
-    const data = d.data;
-    let count = 0;
-    for (const key in data) {
-      if (key && data[key] !== undefined) {
-        localStorage.setItem(key, data[key]);
-        count++;
-      }
-    }
-    el.textContent = '✅ 同步完成！載入 ' + count + ' 筆資料';
-    el.className = 'status success';
-    setTimeout(() => {
-      window.location.href = 'https://imlollipop33.github.io/household-budget/';
-    }, 1500);
-  })
-  .catch(err => {
-    el.textContent = '❌ 失敗：' + err.message;
-    el.className = 'status error';
-  });
+(async()=>{try{
+ const remote=await fetch(SYNC_URL+(SYNC_URL.includes('?')?'&':'?')+'t='+Date.now(),{signal:AbortSignal.timeout(25000)}).then(r=>r.json());
+ if(!remote.ok)throw Error('雲端回應錯誤');const data=LedgerData.validate(remote.data);
+ let local={};try{local=LedgerData.collect(localStorage);}catch{}
+ const hasRecords=Object.keys(local).some(k=>/^hh_(exp|inc)_\d{4}$/.test(k)&&JSON.parse(local[k]).length);
+ const localSignature=Object.keys(local).length?LedgerData.signature(local):'',cloudSignature=LedgerData.signature(data);
+ if(hasRecords&&localSignature!==cloudSignature&&(localStorage.getItem('ll_unsynced')==='1'||localStorage.getItem('ll_cloud_baseline')!==localSignature))throw Error('本機有尚未同步或不同的帳目，已保留資料。請回帳本先匯出備份並確認。');
+ if(hasRecords)localStorage.setItem('ll_safety_latest',JSON.stringify({format:'household-budget-safety',savedAt:new Date().toISOString(),label:'同步頁面載入前',data:local}));
+ LedgerData.replace(localStorage,data);localStorage.setItem('ll_cloud_baseline',LedgerData.signature(LedgerData.collect(localStorage)));localStorage.removeItem('ll_unsynced');
+ el.textContent='✅ 同步完成！所有帳目已核對載入';el.className='status success';setTimeout(()=>location.href='./#overview',1200);
+ }catch(error){el.textContent='❌ '+error.message;el.className='status error';const a=document.createElement('a');a.href='./#settings';a.textContent='返回帳本檢查';a.style.display='block';a.style.marginTop='20px';el.after(a);}})();
 </script>
 </body>
 </html>
