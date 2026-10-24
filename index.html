@@ -143,6 +143,23 @@ tbody tr:hover td{background:var(--bg);}
 .tbl-sub td{background:var(--bg);font-size:12px;color:var(--text2);}
 .tbl-grand td{font-weight:700;}
 .tbl-grand .mono{color:var(--accent);}
+.expense-select{width:17px;height:17px;margin:0;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+.expense-date{display:flex;align-items:center;gap:10px;white-space:nowrap;}
+.expense-selected td{background:var(--accent-light);}
+.bulk-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--bg);font-size:12px;}
+.bulk-toolbar .bulk-hint{color:var(--text2);flex:1;min-width:180px;}
+.bulk-toolbar button:disabled{opacity:.45;cursor:not-allowed;}
+.bulk-summary{color:var(--text2);font-size:13px;line-height:1.8;margin-bottom:16px;}
+.bulk-preview{font-size:13px;line-height:1.8;margin-top:12px;color:var(--text2);}
+.bulk-error{color:#B42318;font-size:13px;line-height:1.6;margin-top:10px;}
+.bulk-modal .modal-title{margin-bottom:12px;}
+.expense-tools{display:flex;align-items:center;flex-wrap:wrap;gap:6px;max-width:100%;}
+.expense-tools .search-input{width:220px;max-width:100%;min-width:0;flex:1 1 180px;}
+.expense-tools .view-toggle{flex-shrink:0;}
+.expense-tools .hdr-btn{white-space:nowrap;}
+.expense-table{min-width:900px;}
+.expense-table td:nth-child(2){min-width:120px;}
+@media(max-width:768px){.expense-tools{width:100%;}.expense-table{min-width:620px;}}
 
 /* ── Badges ── */
 .badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.03em;padding:3px 8px;border-radius:20px;white-space:nowrap;}
@@ -459,6 +476,25 @@ tr:hover .btn-sm{opacity:1;}
     <button class="mob-nav-btn" onclick="showPanel('m12',this)" id="mobnav-m12">12月</button>
   </div>
 </nav>
+
+<!-- ── Bulk Expense Date Modal ── -->
+<div class="modal-overlay" id="bulk-date-modal" onclick="if(event.target===this)closeBulkDate()">
+  <form class="modal bulk-modal" style="width:460px" role="dialog" aria-modal="true" aria-labelledby="bulk-date-title" aria-describedby="bulk-date-summary" onsubmit="event.preventDefault();saveBulkDate()">
+    <div class="modal-title" id="bulk-date-title">批次更改日期</div>
+    <p class="bulk-summary" id="bulk-date-summary"></p>
+    <div class="fgroup">
+      <label class="fl" for="bulk-date-input">統一改為</label>
+      <input type="date" id="bulk-date-input" required oninput="updateBulkDatePreview()" aria-describedby="bulk-date-preview bulk-date-error">
+    </div>
+    <p class="bulk-preview" id="bulk-date-preview" aria-live="polite"></p>
+    <p class="bulk-preview">更改後請按「雲端同步」，避免下次載入舊日期。</p>
+    <p class="bulk-error" id="bulk-date-error" role="alert"></p>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeBulkDate()">取消</button>
+      <button type="submit" class="btn btn-primary" id="bulk-date-save">確認更改</button>
+    </div>
+  </form>
+</div>
 
 <!-- ── Edit Expense Modal ── -->
 <div class="modal-overlay" id="edit-exp-modal" onclick="if(event.target===this)closeEditExp()">
@@ -1194,8 +1230,8 @@ function buildMonthPanel(mm){
   <div class="section">
     <div class="section-header">
       <div class="section-title">${name} 支出明細</div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <input class="search-input" type="text" placeholder="🔍 搜尋品項..." oninput="filterTable('${mm}',this.value)" id="search-${mm}">
+      <div class="expense-tools">
+        <input class="search-input" type="text" placeholder="🔍 搜尋品項或日期..." aria-label="搜尋品項或日期" oninput="filterTable('${mm}',this.value)" id="search-${mm}">
         <div class="view-toggle">
           <button class="hdr-btn active" id="btn-list-${mm}" onclick="switchView('${mm}','list')">☰ 列表</button>
           <button class="hdr-btn" id="btn-cal-${mm}" onclick="switchView('${mm}','cal')">📅 日曆</button>
@@ -1203,9 +1239,15 @@ function buildMonthPanel(mm){
       </div>
     </div>
     <div id="list-view-${mm}">
+      <div class="bulk-toolbar">
+        <span id="bulk-count-${mm}" aria-live="polite">已選 0 筆</span>
+        <button type="button" class="btn btn-primary" id="bulk-edit-${mm}" onclick="openBulkDate('${mm}')" disabled>批次改日期</button>
+        <button type="button" class="btn btn-secondary" id="bulk-clear-${mm}" onclick="clearExpenseSelection('${mm}')" disabled>取消勾選</button>
+        <span class="bulk-hint">勾選左側方框；表頭可全選目前搜尋結果</span>
+      </div>
       <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>日期</th><th>項目</th><th>分類</th><th>屬於</th><th>付款</th><th>數量</th><th>金額</th><th>GST</th><th>PST</th><th>小計</th><th></th></tr></thead>
+        <table class="expense-table">
+          <thead><tr><th><label class="expense-date"><input type="checkbox" class="expense-select" id="select-all-${mm}" aria-label="全選目前搜尋結果" onchange="selectVisibleExpenses('${mm}',this.checked)"><span>日期</span></label></th><th>項目</th><th>分類</th><th>屬於</th><th>付款</th><th>數量</th><th>金額</th><th>GST</th><th>PST</th><th>小計</th><th></th></tr></thead>
           <tbody id="tbl-${mm}"></tbody>
         </table>
         <div id="empty-${mm}" class="empty-state">尚無記錄，請在上方新增</div>
@@ -1329,8 +1371,8 @@ function renderMonth(mm){
         :e.who==='han'?`<span class="who-chip who-han">涵的</span>`
         :`<span class="who-chip who-shared">共同</span>`;
       const paidLabel=e.paidBy==='kai'?`<span class="who-chip who-kai">凱付</span>`:`<span class="who-chip who-han">涵付</span>`;
-      return `<tr>
-        <td>${e.date}</td>
+      return `<tr data-expense-id="${e.id}">
+        <td><label class="expense-date"><input type="checkbox" class="expense-select" aria-label="選取支出 ${e.id}" onchange="toggleExpenseSelection('${mm}',${e.id},this.checked)"><span>${e.date}</span></label></td>
         <td style="font-weight:500">${e.name}${e.note?'<br><span style="font-size:11px;color:var(--text3)">'+e.note+'</span>':''}</td>
         <td><span class="badge ${BADGE[e.cat]||'b-daily'}">${e.cat}</span></td>
         <td>${whoLabel}</td><td>${paidLabel}</td>
@@ -1350,6 +1392,8 @@ function renderMonth(mm){
       <tr class="tbl-grand"><td colspan="9" style="text-align:right;padding-right:14px">月支出合計</td><td class="mono">${fmtCad(allTotal)}</td><td></td></tr>`;
   }
 
+  filterTable(mm,document.getElementById('search-'+mm).value);
+
   const bycat={};
   exps.forEach(e=>{bycat[e.cat]=(bycat[e.cat]||0)+total(e);});
   const sc=Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
@@ -1367,6 +1411,8 @@ function renderMonth(mm){
 
 /* ──────── Year Switch ──────── */
 function switchYear(delta){
+  closeBulkDate();
+  expenseSelections.clear();
   saveExp(); saveInc();
   currentYear += delta;
   localStorage.setItem('hh_cur_year', currentYear);
@@ -1383,12 +1429,141 @@ function switchYear(delta){
   // Re-render all panels
   ['01','02','03','04','05','06','07','08','09','10','11','12'].forEach(m=>{
     const p=document.getElementById('panel-m'+m);
-    if(p) p.innerHTML='';
+    if(p){p.innerHTML='';delete p.dataset.built;}
   });
   showPanel('year', document.querySelector('.nav-item'));
   renderYear();
   showToast(currentYear+' 年資料已載入');
 }
+
+/* ──────── Bulk Expense Date ──────── */
+const expenseSelections=new Map();
+let bulkDateEdit=null;
+let bulkDateReturnFocus=null;
+
+function selectedExpenseIds(mm){
+  if(!expenseSelections.has(mm))expenseSelections.set(mm,new Set());
+  return expenseSelections.get(mm);
+}
+function visibleExpenseRows(mm){
+  return [...document.querySelectorAll('#tbl-'+mm+' tr[data-expense-id]')]
+    .filter(row=>row.style.display!=='none');
+}
+function updateExpenseSelection(mm){
+  const selected=selectedExpenseIds(mm);
+  const rows=visibleExpenseRows(mm);
+  const visibleIds=new Set(rows.map(row=>Number(row.dataset.expenseId)));
+  // Hidden and removed rows cannot remain selected for a batch operation.
+  for(const id of selected)if(!visibleIds.has(id))selected.delete(id);
+  document.querySelectorAll('#tbl-'+mm+' tr[data-expense-id]').forEach(row=>{
+    const checked=selected.has(Number(row.dataset.expenseId));
+    row.querySelector('.expense-select').checked=checked;
+    row.classList.toggle('expense-selected',checked);
+  });
+  const all=document.getElementById('select-all-'+mm);
+  all.checked=rows.length>0&&selected.size===rows.length;
+  all.indeterminate=selected.size>0&&selected.size<rows.length;
+  all.disabled=rows.length===0;
+  document.getElementById('bulk-count-'+mm).textContent='已選 '+selected.size+' 筆';
+  document.getElementById('bulk-edit-'+mm).disabled=selected.size===0;
+  document.getElementById('bulk-clear-'+mm).disabled=selected.size===0;
+}
+function toggleExpenseSelection(mm,id,checked){
+  const selected=selectedExpenseIds(mm);
+  if(checked)selected.add(id);else selected.delete(id);
+  updateExpenseSelection(mm);
+}
+function selectVisibleExpenses(mm,checked){
+  const selected=selectedExpenseIds(mm);
+  selected.clear();
+  if(checked)visibleExpenseRows(mm).forEach(row=>selected.add(Number(row.dataset.expenseId)));
+  updateExpenseSelection(mm);
+}
+function clearExpenseSelection(mm){
+  selectedExpenseIds(mm).clear();
+  updateExpenseSelection(mm);
+}
+function openBulkDate(mm){
+  updateExpenseSelection(mm);
+  const ids=selectedExpenseIds(mm);
+  const records=monthExp(mm).filter(e=>ids.has(e.id));
+  if(!records.length)return;
+  bulkDateEdit={mm,year:currentYear,records:records.map(e=>({id:e.id,date:e.date}))};
+  bulkDateReturnFocus=document.activeElement;
+  const dates=[...new Set(records.map(e=>e.date))].sort();
+  document.getElementById('bulk-date-summary').textContent='已選 '+records.length+' 筆支出，原日期：'+
+    (dates.length===1?dates[0]:dates[0]+' ～ '+dates[dates.length-1]+'（共 '+dates.length+' 個日期）')+'。只會更改日期，金額與其他內容維持不變。';
+  const input=document.getElementById('bulk-date-input');
+  input.min=currentYear+'-01-01';
+  input.max=currentYear+'-12-31';
+  input.value=dates.length===1?dates[0]:'';
+  document.getElementById('bulk-date-error').textContent='';
+  document.getElementById('bulk-date-modal').classList.add('open');
+  updateBulkDatePreview();
+  input.focus();
+}
+function closeBulkDate(){
+  document.getElementById('bulk-date-modal').classList.remove('open');
+  bulkDateEdit=null;
+  if(bulkDateReturnFocus&&bulkDateReturnFocus.isConnected)bulkDateReturnFocus.focus();
+  bulkDateReturnFocus=null;
+}
+function validBulkDate(date,year){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date.slice(0,4)!==String(year))return false;
+  const parsed=new Date(date+'T12:00:00Z');
+  return !isNaN(parsed.getTime())&&parsed.toISOString().slice(0,10)===date;
+}
+function updateBulkDatePreview(){
+  if(!bulkDateEdit)return;
+  const date=document.getElementById('bulk-date-input').value;
+  const valid=validBulkDate(date,bulkDateEdit.year);
+  document.getElementById('bulk-date-save').disabled=!valid;
+  document.getElementById('bulk-date-error').textContent='';
+  document.getElementById('bulk-date-preview').textContent=valid
+    ? '將把 '+bulkDateEdit.records.length+' 筆支出統一改為 '+date+'。'+
+      (date.slice(5,7)!==bulkDateEdit.mm?'這些明細將移至 '+Number(date.slice(5,7))+' 月，月統計會一併更新。':'')
+    : '請選擇 '+bulkDateEdit.year+' 年內的日期，可跨月份更改。';
+}
+function saveBulkDate(){
+  if(!bulkDateEdit)return;
+  const {mm,year,records}=bulkDateEdit;
+  const date=document.getElementById('bulk-date-input').value;
+  const error=document.getElementById('bulk-date-error');
+  if(!validBulkDate(date,year)){
+    error.textContent='請選擇 '+year+' 年內的有效日期。';return;
+  }
+  const currentRecords=new Map(expenses.map(e=>[e.id,e]));
+  if(currentYear!==year||records.some(e=>!currentRecords.has(e.id)||currentRecords.get(e.id).date!==e.date)){
+    error.textContent='選取的資料已變更，請取消後重新勾選。';return;
+  }
+  const ids=new Set(records.map(e=>e.id));
+  const updated=expenses.map(e=>ids.has(e.id)?{...e,date}:e);
+  try{
+    localStorage.setItem('hh_exp_'+year,JSON.stringify(updated));
+  }catch(err){
+    error.textContent='儲存失敗，日期尚未更改。請確認瀏覽器有可用的儲存空間後重試。';return;
+  }
+  expenses=updated;
+  selectedExpenseIds(mm).clear();
+  closeBulkDate();
+  // Cross-month moves also affect later months' cumulative balances and calendars.
+  MONTHS.forEach(m=>{
+    if(document.getElementById('panel-m'+m).dataset.built){
+      renderMonth(m);
+      if(document.getElementById('cal-view-'+m).style.display!=='none')renderCalendar(m);
+    }
+  });
+  renderYear();
+  showToast('✓ 已更改 '+records.length+' 筆日期為 '+date+'，請記得雲端同步');
+}
+document.getElementById('bulk-date-modal').addEventListener('keydown',event=>{
+  if(event.key==='Escape'){event.preventDefault();closeBulkDate();return;}
+  if(event.key!=='Tab')return;
+  const controls=[...event.currentTarget.querySelectorAll('input,button')].filter(el=>!el.disabled);
+  const first=controls[0],last=controls[controls.length-1];
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+});
 
 /* ──────── Search ──────── */
 function filterTable(mm, q){
@@ -1397,6 +1572,10 @@ function filterTable(mm, q){
   const rows=tbody.querySelectorAll('tr:not(.tbl-sub):not(.tbl-grand)');
   const kw=q.trim().toLowerCase();
   rows.forEach(tr=>{tr.style.display=(!kw||tr.textContent.toLowerCase().includes(kw))?'':'none';});
+  const empty=document.getElementById('empty-'+mm);
+  empty.textContent=rows.length?'沒有符合搜尋的明細':'尚無記錄，請在上方新增';
+  empty.style.display=[...rows].some(row=>row.style.display!=='none')?'none':'block';
+  updateExpenseSelection(mm);
 }
 
 /* ──────── Settlement Mark ──────── */
@@ -2497,3 +2676,4 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
