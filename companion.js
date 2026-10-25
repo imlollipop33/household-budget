@@ -34,7 +34,8 @@
       if(moving)raf=requestAnimationFrame(tick);
     }
     const schedule=()=>{if(!raf)raf=requestAnimationFrame(tick);};
-    const move=e=>{if(e.pointerType==='touch')return;pointer={x:e.clientX,y:e.clientY};schedule();};
+    const move=e=>{if(e.pointerType==='touch'||document.body.dataset.catTool)return;pointer={x:e.clientX,y:e.clientY};schedule();};
+    const target=e=>{pointer=e.detail;schedule();};
     const rest=()=>{pointer=null;schedule();};
     cats.forEach(async item=>{
       try{
@@ -45,7 +46,8 @@
       }catch{if(!disposed)item.cat.dataset.ready='error';}
     });
     window.addEventListener('pointermove',move,{passive:true});document.documentElement.addEventListener('pointerleave',rest,{passive:true});window.addEventListener('blur',rest);window.addEventListener('resize',schedule,{passive:true});window.addEventListener('scroll',schedule,{passive:true});reduced.addEventListener('change',schedule);desktop.addEventListener('change',schedule);
-    dispose=()=>{disposed=true;cancelAnimationFrame(raf);window.removeEventListener('pointermove',move);document.documentElement.removeEventListener('pointerleave',rest);window.removeEventListener('blur',rest);window.removeEventListener('resize',schedule);window.removeEventListener('scroll',schedule);reduced.removeEventListener('change',schedule);desktop.removeEventListener('change',schedule);};
+    document.addEventListener('cat:target',target);
+    dispose=()=>{disposed=true;cancelAnimationFrame(raf);document.removeEventListener('cat:target',target);window.removeEventListener('pointermove',move);document.documentElement.removeEventListener('pointerleave',rest);window.removeEventListener('blur',rest);window.removeEventListener('resize',schedule);window.removeEventListener('scroll',schedule);reduced.removeEventListener('change',schedule);desktop.removeEventListener('change',schedule);};
   }
   document.addEventListener('ledger:render',bind);window.addEventListener('pagehide',()=>dispose());window.addEventListener('pageshow',e=>{if(e.persisted)bind();});bind();
 })();
